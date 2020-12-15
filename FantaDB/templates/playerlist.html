@@ -1,0 +1,51 @@
+{% extends "navInterface.html" %}
+
+{% block navbar %}
+    <li class="nav-item ">
+        <a class="nav-link" href="/">Home </a>
+    </li>
+    <li class="nav-item active">
+        <a class="nav-link" href="/playerlist">Lista Giocatori</a>
+    </li>
+{% endblock %}
+
+
+{% block content %}
+
+    <div style="width:800px; margin:0 auto;">
+        <table border="solid black 5px" style="margin:0 auto;" width="500px">
+            <tr><h2 style="text-align: center; margin:0 auto;"> Lista Giocatori </h2></tr>
+            <tr>
+                <td>Id</td>
+                <td>Nome</td>
+                <td>Ruolo</td>
+                <td>Squadra</td>
+                <td>Qt. A</td>
+                <td>Qt. I</td>
+            </tr>
+            {% for player in data %}
+                <tr>
+                    <td>{{ player[0] }}</td>
+                    <td>{{ player[1] }}</td>
+                    <td>{{ player[2] }}</td>
+                    <td>{{ player[3] }}</td>
+                    <td>{{ player[4] }}</td>
+                    <td>{{ player[5] }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <div style="float: right; margin:0 auto">
+        
+        <table border="solid black 1px">
+            <tr><th style="text-align: center;"> Squadre SerieA</th></tr>
+            {% for team in squadre %}
+                <tr>
+                    <td style="align-items: center;">{{ team }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+    
+{% endblock %}

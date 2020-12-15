@@ -1,0 +1,31 @@
+{% extends "navInterface.html" %}
+
+{% block navbar %}
+    <li class="nav-item active">
+        <a class="nav-link" href="/">Home </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/playerlist">Lista Giocatori</a>
+    </li>
+{% endblock %}
+
+{% block content %}
+    {% if  op == 'update' %}
+        <form method="POST" action="/updateFAll">
+            <div style="margin-left: 30%" class="col-md-4">
+                <h2>ID FantaAllenatore: {{ id }}</h2>
+                <input type="hidden" class= "form-control" name="iD" value="{{ id }}"required></br>
+                <label for="username" class="form-label">Nome</label>
+                <input type="text" width="75" class="form-control" name="username" value= "{{ nAllenatore }}" required>
+                <label for="email" class="form-label">Email</label>
+                <input type="text" width="75" class="form-control" value= "{{ email }}" name="email">
+                <input type="hidden" name="op" value="updating">
+                <button class="btn btn-primary" type="submit" style="margin-left: 50;">Submit</button>
+            </div>
+        </form>
+    {% else %}
+        {%if message == ''%}
+            <h1>{{ message }}</h1>
+        {% endif %}
+    {% endif %}
+{% endblock %}

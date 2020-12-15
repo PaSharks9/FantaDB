@@ -1,0 +1,13 @@
+- (FATTO)Aggiungere pulsante modifica di fianco ad ogni giocatore: mettere input nelle righe con possibilità di cambiare i dati;
+  .In alternativa , poter cliccare sul giocatore e renderizzare una pagina con una form per modificare le info del fanta allenatore 
+
+- (FATTO)Sistemare le dimensioni delle tabelle della pagina dei giocatori e squadre
+
+- Sistemare le relazioni delle tabelle
+
+- Creazione fantasquadra (vuota all'inizio, dovrò vedere nella home, per ogni giocatore un pulsante con aggiungi fantasquadra che innesca un popup con una form per inserire e quindi creare la fantasquadra)
+ 
+- Creare pagina che mostra ogni fantasquadra registrata e i giocatori in suo possesso, possibilità di aggiungere un giocatore da un input a riempimento con i nomi dei giocatori
+
+
+- IMPARARE A FARE I POP_UP
