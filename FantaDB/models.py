@@ -4,34 +4,61 @@ from FantaDB.database import Base
 
 
 # Da finire
-'''class FantaSquadra(Base):
+class FantaSquadra(Base):
     __tablename__= 'FantaSquadre'
-    id= Column(Integer, primary_key=True, nullable=False)
-    nome= Column(String(20), unique=True, nullable=False)
-    fAllenatore_id= Column(Integer, ForeignKey('FantaAllenatori.id'), unique=True, nullable=False)
-    fantaAllenatore= relationship('FantaAllenatore', back_populates='fantaSquadra')
-    allenatore= relationship('Allenatore', back_populates='FantaSquadre')
+    
+    TeamName= Column(String(20), primary_key=True, nullable=False)
+    
+    IdFantaAllenatore= Column(Integer, ForeignKey('FantaAllenatori.id'), unique=True, nullable=False)
+    # giocatori= Column(Integer, ForeignKey('Giocatori.IdPlayer'), unique=True, nullable=True) # Forse dovrebbe essere una stringa con la concatenazione degli Id dei giocatori comprati
+    # allenatore= Column(String(20), ForeignKey('Allenatore.Nome'), unique=True, nullable=True)
+    
+    crediti= Column(Integer, nullable= True)
     
 
-    def __init__(self, nome, fAllenatore_id, allenatore):
-        self.id= CreateID()
-        self.nome= nome
-        self.fAllenatore_id= fAllenatore_id
-        self.allenatore= allenatore
+    fantaAllenatore= relationship('FantaAllenatore')
+    # allenatore= relationship('Allenatore', back_populates='FantaSquadre')
+    
+
+    def __init__(self, teamName, IdFantaAllenatore):
+        self.TeamName= teamName
+        self.crediti= 300
+        self.IdFantaAllenatore= IdFantaAllenatore
+
 
     def __repr__(self):
-        return str(self.id) + '|' + self.nome + '|' + str(self.fAllenatore_id)  
+        return self.TeamName + '|' + str(self.IdFantaAllenatore) + '|' + str(self.crediti)
 
-    def CreateID(self):
+
+
+
+class FantaAllenatore(Base):
+    __tablename__ = 'FantaAllenatori'
+    id= Column(Integer, primary_key=True, nullable=False)
+    email= Column(String(30), unique=True, nullable= True)
+    username= Column(String(30), unique=True, nullable= False)
+    fantaSquadra= relationship('FantaSquadra')
+
+
+    def __init__(self, ID,  email, username):
+        self.id = ID
+        self.email= email
+        self.username= username
+    
+    def __repr__(self):
+        return  str(self.id) + '|' + self.email + '|' + self.username
+
+
+    '''def CreateID(self):
         ids= FantaAllenatore.query.filter(FantaAllenatore.id >= 0)
         # Massimo 10 giocatori
         n= random.randint(0,10)
         while n in ids:
             n = random.randint(0,10)
         # print('dentro create, n= ', n)
-        return n
+        return n'''
         
-class Allenatore(Base):
+'''class Allenatore(Base):
     __tablename__= 'allenatore'
     nome= Column(String(30), primary_key=True, nullable=False)
     fantaSq_id= Column(Integer, ForeignKey('FantaSquadre.id'))
@@ -44,24 +71,6 @@ class Allenatore(Base):
 
     def __repr__(self):
         return self.nome + self.squadra'''
-
-class FantaAllenatore(Base):
-    __tablename__ = 'FantaAllenatori'
-    id= Column(Integer, primary_key=True, nullable=False)
-    email= Column(String(30), unique=True, nullable= True)
-    username= Column(String(30), unique=True, nullable= False)
-    # fantaSquadra= relationship('FantaSquadra', back_populates='FantaAllenatori')
-
-
-    def __init__(self, ID,  email, username):
-        self.id = ID
-        self.email= email
-        self.username= username
-    
-    def __repr__(self):
-        return  str(self.id) + '|' + self.email + '|' + self.username
-
-
 
 
 class Squadra(Base):

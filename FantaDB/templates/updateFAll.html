@@ -10,22 +10,46 @@
 {% endblock %}
 
 {% block content %}
-    {% if  op == 'update' %}
+    <form method="POST" action="/updateFAll">
+        <div style="margin-left: 30%" class="col-md-4">
+            <h2>ID FantaAllenatore: {{ id }}</h2>
+            <input type="hidden" class= "form-control" name="iD" value="{{ id }}"required></br>
+            <label for="username" class="form-label">Nome</label>
+            <input type="text" width="75" class="form-control" name="username" value= "{{ nAllenatore }}" required>
+            <label for="email" class="form-label">Email</label>
+            <input type="text" width="75" class="form-control" value= "{{ email }}" name="email">
+            <input type="hidden" name="op" value="updating">
+            <button class="btn btn-primary" type="submit" style="margin-left: 50;">Submit</button>
+        </div>
+    </form>
+
+    {% if fantaT == 'y' %}
+        <div style="margin-left: 30%" class="col-md-4">
+            <h2>{{ dictTeam[id][0] }}</h2>
+            <p>Crediti disponibili: {{  dictTeam[id][1] }}</p>
+
+            <form method="POST" action="/updateFAll">
+                <div style="margin-left: 30%" class="col-md-4">
+                    <input type="hidden" width="10" name="nFTeam" value= "{{ dictTeam[id][0] }}" required>
+                    <input type="hidden" name="op" value="deleteFTeam">
+                    <button class="btn btn-primary" type="submit" style="margin-left: 50;">Elimina Squadra</button>
+                </div>
+            </form>
+        </div>
+    {% elif fantaT == 'n'%}
         <form method="POST" action="/updateFAll">
             <div style="margin-left: 30%" class="col-md-4">
-                <h2>ID FantaAllenatore: {{ id }}</h2>
-                <input type="hidden" class= "form-control" name="iD" value="{{ id }}"required></br>
-                <label for="username" class="form-label">Nome</label>
-                <input type="text" width="75" class="form-control" name="username" value= "{{ nAllenatore }}" required>
-                <label for="email" class="form-label">Email</label>
-                <input type="text" width="75" class="form-control" value= "{{ email }}" name="email">
-                <input type="hidden" name="op" value="updating">
-                <button class="btn btn-primary" type="submit" style="margin-left: 50;">Submit</button>
+                <label for="nTeam"  class="form-label">Nome FantaSquadra</label>
+                <input type="text" width="75" class="form-control" name="nTeam" required>
+                <input type="hidden" width="10" name="iD" value= "{{ id }}" required>
+                <input type="hidden" name="op" value="addFTeam">
+                <button class="btn btn-primary" type="submit" style="margin-left: 50;">Crea Squadra</button>
             </div>
         </form>
-    {% else %}
-        {%if message == ''%}
-            <h1>{{ message }}</h1>
-        {% endif %}
+    {% endif %}
+
+
+    {%if message == ''%}
+        <h1>{{ message }}</h1>
     {% endif %}
 {% endblock %}

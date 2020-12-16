@@ -2,8 +2,10 @@ from flask import Flask, render_template,  request, redirect, url_for, flash
 
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import Column, Date, Integer, Text, create_engine, inspect, exc
-from FantaDB.models import FantaAllenatore, Squadra, Giocatore
+from sqlalchemy import Column, Date, Integer, Text, create_engine, inspect, exc, join
+from sqlalchemy.sql import select
+
+from FantaDB.models import FantaAllenatore, Squadra, Giocatore, FantaSquadra
 from FantaDB.database import db_session, init_db
 
 # Lettura file xsl
@@ -33,10 +35,11 @@ def home():
     
     # Spezzo la rappresentazione di FantaAllenatore per l'elaborazione
     usernames, emails, results= getFantaMisterDB()
+
+
     print("Mister presenti nel database: ", results)
     # POST suddiviso in due parti, la prima parte verifica se si arriva in post sulla home per cancellare dei fantallenatori, la seconda è per vedere se si arriva in post per aggiungere fantallenatori
     if request.method == 'POST':
-        # print("Dentro Post")
 
         op= request.form['op']
 
@@ -54,7 +57,9 @@ def home():
             if request.form['username'] != '': 
                 if '@' in request.form['Email'] and ('.com'  in request.form['Email'] or '.it'  in request.form['Email']):
                     if request.form['Email'] not in emails and request.form['username'] not in usernames: 
+
                         IDmister= CreateID(FantaAllenatore)
+
                         if IDmister != 'F':
                             mister = FantaAllenatore(IDmister, request.form['Email'], request.form['username'])
                             db_session.add(mister)
@@ -73,7 +78,6 @@ def home():
                     message= ["Formato email sbagliato, ricontrollare!"]
                     return render_template('homescreen.html', data=results, user_image= full_filename, messages= message)
                 
-
             flash("Inserire Username!")
             return redirect('/')
     
@@ -90,17 +94,49 @@ def playerlist():
 
 @app.route('/updateFAll', methods=['POST', 'GET'])
 def updateFAll():
+    nomeFantaTeam, idFantaAll, crediti, dictTeam= getFantaSquadre()
+
+    # print("nomeFantaTeam: ", nomeFantaTeam)
+    # print("\nidFantaAll: ", idFantaAll)
+
     op= request.form['op']
-
+    # print("op: ", op)
     if request.method == 'POST':
-
+        
         if op == "update":
             # Arrivo da homescreen con i dati del fantallenatore che voglio modificare                        
-            iD= request.form['Id']
+            iDForm= request.form['Id'] # questo Id qui è quello che viene dalla form di homescreen
+            iD= int(iDForm) # Se non faccio cosi' iD = ' 9' con lo spazio
+
             nameAllenatore= request.form['name']
             email= request.form['email']
-            return render_template('updateFAll.html',op=op, id=iD, nAllenatore= nameAllenatore, email= email)
 
+            if int(iD) in idFantaAll:
+                # Se l'allenatore ha una fantasquadra non metto la possibilità d'inserirla e quindi posso solo vedere la squadra o cancellarla
+                return render_template('updateFAll.html', op=op, id=iD, nAllenatore= nameAllenatore, email= email, fantaT= 'y', dictTeam= dictTeam, )
+
+            # Se l'allenatore non ha una fantasquadra abilito la possibilità di aggiungerla 
+            return render_template('updateFAll.html',op=op, id=iD, nAllenatore= nameAllenatore, email= email, fantaT= 'n')
+
+        elif op == "addFTeam":
+            # print("nTeam ricevuto: ", request.form['nTeam']) 
+            # Creazione della FantaSquadra
+            if request.form['nTeam'] not in nomeFantaTeam:
+                iD= request.form['iD']
+                fantaTeam= FantaSquadra(request.form['nTeam'], int(iD))
+
+                db_session.add(fantaTeam)
+                db_session.commit()
+                return redirect('/')
+            else:
+                message= ["Nome Squadra gia presente!"]
+                return render_template('updateFAll.html', messages= message)
+        
+        elif op == "deleteFTeam":
+            FantaSquadra.query.filter_by(TeamName= request.form['nFTeam']).delete() # Volendo eventuale controllo su nFTeam dato che viene direttamente dalla form
+            db_session.commit()
+            return redirect('/')
+        
         elif op == "updating":
             # Arrivo da updataFAll con i nuovi dati per effettuare la modifica
             iD= request.form['iD']
@@ -114,7 +150,6 @@ def updateFAll():
             db_session.commit()
             # print("Utente modificato con successo")
             return redirect('/')
-
 
     elif request.method == 'GET':
         return render_template('homescreen.html', message=" Errore, pagina visitata in GET")
@@ -159,23 +194,62 @@ def CreateID(element):
     # print('dentro create, n= ', n)
     return n
 
+
+def getFantaSquadre():
+    nomeTeam= []
+    idFantaAll= []
+    crediti= []
+
+    dictTeam= {}
+    squadre= FantaSquadra.query.all()
+    
+    for squadra in squadre:
+        team= str(squadra).split('|')
+        dictTeam[int(team[1])]= [team[0], int(team[2])] 
+        nomeTeam.append(team[0])
+        idFantaAll.append(int(team[1]))
+        crediti.append(int(team[2]))
+    
+    return nomeTeam, idFantaAll, crediti, dictTeam
+
 def getFantaMisterDB():
     results= []
+    joinResults= {}
     emails= []
     usernames= []    
 
+    # fantaAllenatoriDB= str(self.id) + '|' + self.email + '|' + self.username
     fantaAllenatoriDB= FantaAllenatore.query.all()
+
+    # FAllenatoreSquadraJoin= FantaAllenatore.query.join(FantaSquadra).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
+
+    # Ottengo le fantasquadre(se presenti) relative ad ogni allenatore in modo da poterle mostrare nell'homescreen
+    fantaSquadreJoin= FantaSquadra.query.join(FantaAllenatore).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
+    for res in fantaSquadreJoin:
+        element= str(res).split('|')
+                        # id      nomeFantaTeam, Crediti
+        joinResults[element[1]]= [element[0], element[2]]
+
 
     # Spezzo la rappresentazione di FantaAllenatore per l'elaborazione
     for allenatore in fantaAllenatoriDB:
         elements= str(allenatore).split('|')
-        results.append(elements) # Mi serve per stamparla a schermo
+
+        # Aggiungo le info sulla fantasquadra relativa all'utente in considerazione nel caso la fantasquadra esistesse
+        if elements[0] in joinResults.keys():
+            elements.append(joinResults[elements[0]][0])
+            # elements.append(joinResults[elements[0]][1]) # Crediti, non necessario aggiungerli
+        else:
+            elements.append('-')
+            print("Chiave ", elements[0], " non presente nel dizionario")
+
+        results.append(elements)
+
         emails.append(elements[1])
         usernames.append(elements[2])
     
     # print("results: ", results)
     return usernames, emails, results
-
 
 def getPlayersDB():
     playersDB= []

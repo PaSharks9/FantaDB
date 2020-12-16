@@ -3,10 +3,12 @@
 
 - (FATTO)Sistemare le dimensioni delle tabelle della pagina dei giocatori e squadre
 
-- Sistemare le relazioni delle tabelle
+- Sistemare le relazioni delle tabelle (Fantasquadre fatto)
 
-- Creazione fantasquadra (vuota all'inizio, dovrò vedere nella home, per ogni giocatore un pulsante con aggiungi fantasquadra che innesca un popup con una form per inserire e quindi creare la fantasquadra)
- 
+- (FATTO)Creazione fantasquadra (vuota all'inizio, dovrò vedere nella home, per ogni giocatore un pulsante con aggiungi fantasquadra che innesca un popup con una form per inserire e quindi creare la fantasquadra)
+
+- Creare relazione giocarori nella FantaSquadra e mostrarli in una pagina
+
 - Creare pagina che mostra ogni fantasquadra registrata e i giocatori in suo possesso, possibilità di aggiungere un giocatore da un input a riempimento con i nomi dei giocatori
 
 
