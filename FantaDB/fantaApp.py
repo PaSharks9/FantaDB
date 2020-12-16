@@ -48,6 +48,12 @@ def home():
             # print("idForm :", idForm)
 
             if len(idForm) > 0:
+                # Se il fantaAllenatore che vogliamo eliminare ha una fantasquadra prima eliminiamo questa poi lui (si potrebbe aggiungere che una volta eliminato l'utente, tutte le info relative a lui (compreso i suoi giocatori) vengono cancellate)
+                for mister in results:
+                    if int(idForm) == int(mister[0]):
+                        FantaSquadra.query.filter_by(IdFantaAllenatore= idForm).delete()
+                        db_session.commit()
+                
                 FantaAllenatore.query.filter_by(id=idForm).delete()
                 db_session.commit()
                 return redirect('/')
