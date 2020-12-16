@@ -89,15 +89,6 @@ def home():
     
     return render_template('homescreen.html', data=results, user_image= full_filename)
 
-@app.route("/playerlist", methods=['GET'])
-def playerlist():
-    
-    playersDB= getPlayersDB()
-    teams= Squadra.query.all()
-
-    return render_template('playerlist.html', data=playersDB, squadre=teams, user_image= full_filename)
-
-
 @app.route('/updateFAll', methods=['POST', 'GET'])
 def updateFAll():
     nomeFantaTeam, idFantaAll, crediti, dictTeam= getFantaSquadre()
@@ -163,6 +154,56 @@ def updateFAll():
     return render_template('homescreen.html', message="Errore, modifica cancellata")
 
 
+@app.route('/fantaAsta', methods=['POST', 'GET'])
+def fanta_asta():
+
+    '''res= FantaAllenatore.query().join(FantaSquadra)
+    for el in res:
+        print("res: ", el)'''
+
+    # Leggo tutte le squadre registrare. Nelle squadre lette ho anche l'id del fanta allenatore proprietario
+    nomeTeam, idFantaAll, crediti, dictTeam= getFantaSquadre() # dictTeam{ 'idFantaAll:: Int': [TeamName, crediti:: Int] }
+
+    # Leggo tutti i fanta allenatori    
+    fantaAllenatoriDB= FantaAllenatore.query.all() # fantaAllenatoriDB= str(self.id) + '|' + self.email + '|' + self.username
+    dict_fanta_Allenatori= {}
+    for allenatore in fantaAllenatoriDB:
+        element= str(allenatore).split('|')
+        dict_fanta_Allenatori[int(element[0])]= element[2] # dict_fanta_Allenatori[int(idFantaAll)]= "nomeAll"
+
+    # Creo dizionario Squadre/FantaAllenatore
+    fanta_Squadre= {}
+    for key_Team in dictTeam.keys():
+        fanta_Squadre[dictTeam[key_Team][0]]= [dict_fanta_Allenatori[key_Team], dictTeam[key_Team][1]]   # fanta_Squadre[nomeTeam]= [nomeFanta_All, crediti]
+
+    # Creo dizionario Giocatori
+    dict_giocatori= getGiocatori() # giocatoreDict[int(player_id)]=  [nome,ruolo,squadra,int(valI),int(valA)]
+
+
+    # DIZIONARI OTTENUTI 
+    #
+    # dictTeam['int(idFantaAll)]= [TeamName, int(crediti)] 
+    # dict_fanta_Allenatori[int(idFantaAll)]= "nomeAll"
+    # fanta_Squadre[nomeTeam]= [nomeFanta_All, crediti]
+    # giocatoreDict[int(player_id)]=  [nome,ruolo,squadra,int(valI),int(valA)]
+
+
+
+    return render_template('fanta_asta.html', crediti= crediti, fanta_Squadre= fanta_Squadre)
+
+
+@app.route("/playerlist", methods=['GET'])
+def playerlist():
+    
+    playersDB= getPlayersDB()
+    teams= Squadra.query.all()
+
+    return render_template('playerlist.html', data=playersDB, squadre=teams, user_image= full_filename)
+
+
+
+
+
 # --------- Funzioni ------------------------------------------------------------------------------------------------------------------
 
 @app.teardown_appcontext
@@ -200,6 +241,17 @@ def CreateID(element):
     # print('dentro create, n= ', n)
     return n
 
+def getGiocatori():
+
+    giocatoreDict= {}
+    giocatoriList= Giocatore.query.all()  # str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra + '|' + str(self.valI) + '|' + str(self.valA)
+    
+
+    for giocatore in giocatoriList:
+        playerList= str(giocatore).split('|')
+        giocatoreDict[int(playerList[0])]= [playerList[1], playerList[2], playerList[3], int(playerList[4]), int(playerList[5])]  # giocatoreDict[player_id]=  [nome,ruolo,squadra,valI,valA]
+    
+    return giocatoreDict
 
 def getFantaSquadre():
     nomeTeam= []
@@ -207,11 +259,13 @@ def getFantaSquadre():
     crediti= []
 
     dictTeam= {}
+
+    # self.TeamName + '|' + str(self.IdFantaAllenatore) + '|' + str(self.crediti)
     squadre= FantaSquadra.query.all()
     
     for squadra in squadre:
         team= str(squadra).split('|')
-        dictTeam[int(team[1])]= [team[0], int(team[2])] 
+        dictTeam[int(team[1])]= [team[0], int(team[2])]   # dictTeam{ 'idFantaAll:: Int': [TeamName, crediti:: Int] }
         nomeTeam.append(team[0])
         idFantaAll.append(int(team[1]))
         crediti.append(int(team[2]))
@@ -229,13 +283,12 @@ def getFantaMisterDB():
 
     # FAllenatoreSquadraJoin= FantaAllenatore.query.join(FantaSquadra).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
 
-    # Ottengo le fantasquadre(se presenti) relative ad ogni allenatore in modo da poterle mostrare nell'homescreen
+    # Ottengo le fantasquadre(se presenti) relative ad ogni allenatore in modo da poterle mostrare nell'homescreen (si potrebbe fare anche con una selectaAll su FantaSquadre)
     fantaSquadreJoin= FantaSquadra.query.join(FantaAllenatore).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
     for res in fantaSquadreJoin:
         element= str(res).split('|')
-                        # id      nomeFantaTeam, Crediti
+                   # idFantaAll    nomeFantaTeam, Crediti
         joinResults[element[1]]= [element[0], element[2]]
-
 
     # Spezzo la rappresentazione di FantaAllenatore per l'elaborazione
     for allenatore in fantaAllenatoriDB:
@@ -243,7 +296,7 @@ def getFantaMisterDB():
 
         # Aggiungo le info sulla fantasquadra relativa all'utente in considerazione nel caso la fantasquadra esistesse
         if elements[0] in joinResults.keys():
-            elements.append(joinResults[elements[0]][0])
+            elements.append(joinResults[elements[0]][0])  # joinResults[idFantaAll][0]==NomeFantaSquadra
             # elements.append(joinResults[elements[0]][1]) # Crediti, non necessario aggiungerli
         else:
             elements.append('-')

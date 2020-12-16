@@ -10,13 +10,14 @@ class FantaSquadra(Base):
     TeamName= Column(String(20), primary_key=True, nullable=False)
     
     IdFantaAllenatore= Column(Integer, ForeignKey('FantaAllenatori.id'), unique=True, nullable=False)
-    # giocatori= Column(Integer, ForeignKey('Giocatori.IdPlayer'), unique=True, nullable=True) # Forse dovrebbe essere una stringa con la concatenazione degli Id dei giocatori comprati
+    id_giocatori= Column(Integer, ForeignKey('Giocatori.player_id'), unique=True, nullable=True) # Forse dovrebbe essere una stringa con la concatenazione degli Id dei giocatori comprati
     # allenatore= Column(String(20), ForeignKey('Allenatore.Nome'), unique=True, nullable=True)
     
     crediti= Column(Integer, nullable= True)
     
 
     fantaAllenatore= relationship('FantaAllenatore')
+    giocatore= relationship('Giocatore')
     # allenatore= relationship('Allenatore', back_populates='FantaSquadre')
     
 
@@ -92,12 +93,12 @@ class Giocatore(Base):
     nome= Column(String(50), unique=False, nullable=False)
     ruolo= Column(String(15), unique=False, nullable=False)
     squadra= Column(String(30), unique=False, nullable=False)
-    # fantaSquadra= Column(String(20), ForeignKey("FantaSquadre.id"), unique=False, nullable=True)
+
     valI= Column(Integer, unique=False, nullable=False)
     valA= Column(Integer, unique=False, nullable=False)
     valAcquisto= Column(Integer, unique=False, nullable=True)
-   # team= relationship('Squadra', backref="Giocatori") # Relazione Molti a uno, backref ci permette di avere un comportamento bidirezionale della relazione
-   # fantaTeam= relationship('FantaSquadra', backref="Giocatori")
+    
+    fantaTeam= relationship('FantaSquadra')
 
     def __init__(self, player_id, nome, ruolo, squadra, valI, valA):
         self.player_id= int(player_id)

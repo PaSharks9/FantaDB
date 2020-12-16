@@ -1,0 +1,125 @@
+{% extends "navInterface.html" %}
+
+{% block navbar %}
+    <li class="nav-item ">
+        <a class="nav-link" href="/">Home </a>
+    </li>
+    <li class="nav-item ">
+        <a class="nav-link" href="/playerlist">Lista Giocatori</a>
+    </li>
+    <li class="nav-item" active>
+        <a class="nav-link" href="/fantaAsta">Fanta Asta</a>
+    </li> 
+{% endblock %}
+
+{% block content %}
+
+    {% for nomeTeam in fanta_Squadre.keys() %}
+        <div style="margin:auto 0">
+            <h2> {{ nomeTeam }}</h2>
+            <p>Fanta Allenatore: {{ fanta_Squadre[nomeTeam][0] }}</p>
+            <p>Crediti Disponibili: {{ fanta_Squadre[nomeTeam][1] }}</p>
+        </div>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                    <th scope="col">Id</th>
+                    <th scope="col">Ruolo</th>
+                    <th scope="col">Nome</th>
+                    <th scope="col">Squadra</th>
+                    <th scope="col">Val Iniziale</th>
+                    <th scope="col">Val Attuale</th>
+                    <th scope="col">Val Acquisto</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for role in ['Portieri', 'Difensori', 'Centrocampisti', 'Attaccanti'] %}
+                {% if role == 'Portieri' %}
+                    <tr>
+                        <td scope="row"> <h3>{{ role }}</h3> </td>
+                        <table class="table">
+                            <tbody>
+                                {% for i in range(3) %}
+                                    <tr>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </tr>
+
+                {% elif role == 'Difensori' or role == 'Centrocampisti' %}
+                    <tr>
+                        <td scope="row"> <h3>{{ role }}</h3> </td>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Ruolo</th>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">Squadra</th>
+                                    <th scope="col">Val Iniziale</th>
+                                    <th scope="col">Val Attuale</th>
+                                    <th scope="col">Val Acquisto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(8) %}
+                                    <tr>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </tr>
+
+                {% elif role == 'Attaccanti' %}
+                    <tr>
+                        <td scope="row"> <h3>{{ role }}</h3> </td>
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th scope="col">Id</th>
+                                    <th scope="col">Ruolo</th>
+                                    <th scope="col">Nome</th>
+                                    <th scope="col">Squadra</th>
+                                    <th scope="col">Val Iniziale</th>
+                                    <th scope="col">Val Attuale</th>
+                                    <th scope="col">Val Acquisto</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for i in range(6) %}
+                                    <tr>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                        <td>-</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </tr>
+
+                {% endif %}
+            {% endfor%}
+            </tbody>
+        </table>
+    {% endfor %}
+    
+{% endblock %}
