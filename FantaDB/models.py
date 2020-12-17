@@ -10,9 +10,7 @@ class FantaSquadra(Base):
     TeamName= Column(String(20), primary_key=True, nullable=False)
     
     IdFantaAllenatore= Column(Integer, ForeignKey('FantaAllenatori.id'), unique=True, nullable=False)
-    id_giocatori= Column(Integer, ForeignKey('Giocatori.player_id'), unique=True, nullable=True) # Forse dovrebbe essere una stringa con la concatenazione degli Id dei giocatori comprati
-    # allenatore= Column(String(20), ForeignKey('Allenatore.Nome'), unique=True, nullable=True)
-    
+    # allenatore= Column(String(20), ForeignKey('Allenatore.Nome'), unique=True, nullable=True)    
     crediti= Column(Integer, nullable= True)
     
 
@@ -89,7 +87,9 @@ class Squadra(Base):
 class Giocatore(Base):
     __tablename__= 'Giocatori'
 
-    player_id= Column(Integer, primary_key=True)
+    player_id= Column(Integer, primary_key=True,  unique=True)
+    nomeFantasquadra= Column(String(20), ForeignKey('FantaSquadre.TeamName'), nullable=True)
+
     nome= Column(String(50), unique=False, nullable=False)
     ruolo= Column(String(15), unique=False, nullable=False)
     squadra= Column(String(30), unique=False, nullable=False)
@@ -98,6 +98,8 @@ class Giocatore(Base):
     valA= Column(Integer, unique=False, nullable=False)
     valAcquisto= Column(Integer, unique=False, nullable=True)
     
+    
+
     fantaTeam= relationship('FantaSquadra')
 
     def __init__(self, player_id, nome, ruolo, squadra, valI, valA):
@@ -105,10 +107,11 @@ class Giocatore(Base):
         self.nome= nome
         self.ruolo= ruolo
         self.squadra= squadra
+        self.nomeFantasquadra= None
         self.valI= int(valI)
         self.valA= int(valA)
     
     def __repr__(self):
-        return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra + '|' + str(self.valI) + '|' + str(self.valA)
+        return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + str(self.valI) + '|' + str(self.valA)
         # return [self.player_id, self.nome, self.ruolo, self.squadra, self.valI, self.valA]
 

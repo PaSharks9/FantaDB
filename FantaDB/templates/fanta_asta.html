@@ -21,100 +21,134 @@
             <p>Crediti Disponibili: {{ fanta_Squadre[nomeTeam][1] }}</p>
         </div>
         <table class="table">
-            <thead class="thead-dark">
-                <tr>
-                    <th scope="col">Id</th>
-                    <th scope="col">Ruolo</th>
-                    <th scope="col">Nome</th>
-                    <th scope="col">Squadra</th>
-                    <th scope="col">Val Iniziale</th>
-                    <th scope="col">Val Attuale</th>
-                    <th scope="col">Val Acquisto</th>
-                </tr>
-            </thead>
             <tbody>
             {% for role in ['Portieri', 'Difensori', 'Centrocampisti', 'Attaccanti'] %}
-                {% if role == 'Portieri' %}
-                    <tr>
-                        <td scope="row"> <h3>{{ role }}</h3> </td>
-                        <table class="table">
-                            <tbody>
-                                {% for i in range(3) %}
+                {% if role == 'Portieri' %}                    
+                    <table class="table">
+                        <thead class="thead-dark">
+                            <tr> 
+                                <td scope="row"><h3>{{ role }}</h3></td>
+                                <td>
+                                    <div class="form-row align-items-center">
+                                        <div class="col-auto my-1">
+                                        <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
+                                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                                            <option selected>Choose...</option>
+                                            {% for player in giocatoriFADict['P']  %}
+                                                <option value="1">{{ player[1] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        </div>                                        
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="form-row align-items-center">
+                                        <div class="col-auto my-1">
+                                            <button type="submit" class="btn btn-primary">Compra!</button>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Squadra</th>
+                                <th scope="col">Val Iniziale</th>
+                                <th scope="col">Val Attuale</th>
+                                <th scope="col">Val Acquisto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% if fanta_Squadre[nomeTeam][3]['P'] >= 0 and 3 > fanta_Squadre[nomeTeam][3]['P']  %}
+                                {% for player in fanta_Squadre[nomeTeam][2]['P'] %}
                                     <tr>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
+                                        <td>{{ player[0] }}</td>
+                                        <td>{{ player[1] }}</td>
+                                        <td>{{ player[3] }}</td>
+                                        <td>{{ player[4] }}</td>
+                                        <td>{{ player[5] }}</td>
                                     </tr>
                                 {% endfor %}
-                            </tbody>
-                        </table>
-                    </tr>
+                                <tr>
+
+                                </tr>
+                                <tr><td> <p>{{ fanta_Squadre[nomeTeam][2]['P']|length }}</p> </td></tr>
+                            {% elif  fanta_Squadre[nomeTeam][3]['P'] >= 3 %}
+                                {% for player in fanta_Squadre[nomeTeam][2]['P'] %}
+                                    <tr>
+                                        <td> <p>{{ fanta_Squadre[nomeTeam][2]['P']|length }}</p> </td>
+                                        <td>{{ player[0] }}</td>
+                                        <td>{{ player[1] }}</td>
+                                        <td>{{ player[3] }}</td>
+                                        <td>{{ player[4] }}</td>
+                                        <td>{{ player[5] }}</td>
+                                    </tr>
+                                {% endfor %}
+                            {% else %}
+                                    <p>{{ fanta_Squadre[nomeTeam][2]['P']|length }}</p>
+                            {% endif %}
+                        </tbody>
+                    </table>
+                    
 
                 {% elif role == 'Difensori' or role == 'Centrocampisti' %}
-                    <tr>
-                        <td scope="row"> <h3>{{ role }}</h3> </td>
-                        <table class="table">
-                            <thead>
+                                            
+                    <table class="table">
+                        <thead>
+                            <tr> <td scope="row"> <h3>{{ role }}</h3> </td></tr>
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Squadra</th>
+                                <th scope="col">Val Iniziale</th>
+                                <th scope="col">Val Attuale</th>
+                                <th scope="col">Val Acquisto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(8) %}
                                 <tr>
-                                    <th scope="col">Id</th>
-                                    <th scope="col">Ruolo</th>
-                                    <th scope="col">Nome</th>
-                                    <th scope="col">Squadra</th>
-                                    <th scope="col">Val Iniziale</th>
-                                    <th scope="col">Val Attuale</th>
-                                    <th scope="col">Val Acquisto</th>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {% for i in range(8) %}
-                                    <tr>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    
 
                 {% elif role == 'Attaccanti' %}
-                    <tr>
-                        <td scope="row"> <h3>{{ role }}</h3> </td>
-                        <table class="table">
-                            <thead>
+
+                    <table class="table">
+                        <thead>
+                            <tr> <td scope="row"> <h3>{{ role }}</h3> </td></tr>
+                            <tr>
+                                <th scope="col">Id</th>
+                                <th scope="col">Nome</th>
+                                <th scope="col">Squadra</th>
+                                <th scope="col">Val Iniziale</th>
+                                <th scope="col">Val Attuale</th>
+                                <th scope="col">Val Acquisto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for i in range(6) %}
                                 <tr>
-                                    <th scope="col">Id</th>
-                                    <th scope="col">Ruolo</th>
-                                    <th scope="col">Nome</th>
-                                    <th scope="col">Squadra</th>
-                                    <th scope="col">Val Iniziale</th>
-                                    <th scope="col">Val Attuale</th>
-                                    <th scope="col">Val Acquisto</th>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
+                                    <td>-</td>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                {% for i in range(6) %}
-                                    <tr>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                        <td>-</td>
-                                    </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
 
                 {% endif %}
             {% endfor%}
