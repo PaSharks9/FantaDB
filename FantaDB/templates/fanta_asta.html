@@ -15,145 +15,92 @@
 {% block content %}
 
     {% for nomeTeam in fanta_Squadre.keys() %}
-        <div style="margin:auto 0">
+        <div style="margin-left: 50%">
             <h2> {{ nomeTeam }}</h2>
             <p>Fanta Allenatore: {{ fanta_Squadre[nomeTeam][0] }}</p>
             <p>Crediti Disponibili: {{ fanta_Squadre[nomeTeam][1] }}</p>
         </div>
-        <table class="table">
-            <tbody>
-            {% for role in ['Portieri', 'Difensori', 'Centrocampisti', 'Attaccanti'] %}
-                {% if role == 'Portieri' %}                    
-                    <table class="table">
-                        <thead class="thead-dark">
-                            <tr> 
-                                <td scope="row"><h3>{{ role }}</h3></td>
-                                <td>
-                                    <div class="form-row align-items-center">
-                                        <div class="col-auto my-1">
-                                        <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Preference</label>
-                                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
-                                            <option selected>Choose...</option>
-                                            {% for player in giocatoriFADict['P']  %}
-                                                <option value="1">{{ player[1] }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        </div>                                        
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-row align-items-center">
-                                        <div class="col-auto my-1">
-                                            <button type="submit" class="btn btn-primary">Compra!</button>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Nome</th>
-                                <th scope="col">Squadra</th>
-                                <th scope="col">Val Iniziale</th>
-                                <th scope="col">Val Attuale</th>
-                                <th scope="col">Val Acquisto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% if fanta_Squadre[nomeTeam][3]['P'] >= 0 and 3 > fanta_Squadre[nomeTeam][3]['P']  %}
-                                {% for player in fanta_Squadre[nomeTeam][2]['P'] %}
-                                    <tr>
-                                        <td>{{ player[0] }}</td>
-                                        <td>{{ player[1] }}</td>
-                                        <td>{{ player[3] }}</td>
-                                        <td>{{ player[4] }}</td>
-                                        <td>{{ player[5] }}</td>
-                                    </tr>
-                                {% endfor %}
-                                <tr>
+        {% for role in ['P', 'D', 'C', 'A'] %}
 
-                                </tr>
-                                <tr><td> <p>{{ fanta_Squadre[nomeTeam][2]['P']|length }}</p> </td></tr>
-                            {% elif  fanta_Squadre[nomeTeam][3]['P'] >= 3 %}
-                                {% for player in fanta_Squadre[nomeTeam][2]['P'] %}
-                                    <tr>
-                                        <td> <p>{{ fanta_Squadre[nomeTeam][2]['P']|length }}</p> </td>
-                                        <td>{{ player[0] }}</td>
-                                        <td>{{ player[1] }}</td>
-                                        <td>{{ player[3] }}</td>
-                                        <td>{{ player[4] }}</td>
-                                        <td>{{ player[5] }}</td>
-                                    </tr>
-                                {% endfor %}
-                            {% else %}
-                                    <p>{{ fanta_Squadre[nomeTeam][2]['P']|length }}</p>
-                            {% endif %}
-                        </tbody>
-                    </table>
-                    
+            {% if role == 'P' %}
+                {% set ruolo = 'Portieri' %}
+                {% set n_Giocatori= 3 %}    
 
-                {% elif role == 'Difensori' or role == 'Centrocampisti' %}
-                                            
-                    <table class="table">
-                        <thead>
-                            <tr> <td scope="row"> <h3>{{ role }}</h3> </td></tr>
-                            <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Nome</th>
-                                <th scope="col">Squadra</th>
-                                <th scope="col">Val Iniziale</th>
-                                <th scope="col">Val Attuale</th>
-                                <th scope="col">Val Acquisto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for i in range(8) %}
+            {% elif role == 'D'%}
+                {% set ruolo = 'Difensori' %}
+                {% set n_Giocatori= 8 %}
+
+            {% elif role == 'C' %}
+                {% set ruolo = 'Centrocampisti' %}
+                {% set n_Giocatori= 8 %}
+
+            {% elif role == 'A' %}
+                {% set ruolo = 'Attaccanti' %}
+                {% set n_Giocatori= 6 %}
+            {% endif %}
+                <table class="table">
+                    <thead class="thead-dark">
+                        <tr> 
+                            <td scope="row"><h3>{{ ruolo }}</h3></td>
+                            <td>
+                                <div class="form-row align-items-center">
+                                    <div class="col-auto my-1">
+                                    <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">{{ ruolo }}</label>
+                                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect">
+                                        <option selected>Choose...</option>
+                                        {% for player in giocatoriFADict.get(role)  %}
+                                            <option value="1">{{ player[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    </div>                                        
+                                </div>
+                            </td>
+                            <td>
+                                <div class="form-row align-items-center">
+                                    <div class="col-auto my-1">
+                                        <button type="submit" class="btn btn-primary">Compra!</button>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td><p>Giocatori posseduti: {{ fanta_Squadre[nomeTeam][2].get(role)|length }}/ {{ n_Giocatori }}</p> </td>
+                        </tr>
+                        <tr>
+                            <th scope="col">Id</th>
+                            <th scope="col">Nome</th>
+                            <th scope="col">Squadra</th>
+                            <th scope="col">Val Iniziale</th>
+                            <th scope="col">Val Attuale</th>
+                            <th scope="col">Val Acquisto</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if fanta_Squadre[nomeTeam][3].get(role) >= 0 and  n_Giocatori > fanta_Squadre[nomeTeam][3].get(role)  %}
+                            {% for player in fanta_Squadre[nomeTeam][2].get(role) %}
                                 <tr>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
+                                    <td>{{ player[0] }}</td>
+                                    <td>{{ player[1] }}</td>
+                                    <td>{{ player[3] }}</td>
+                                    <td>{{ player[4] }}</td>
+                                    <td>{{ player[5] }}</td>
                                 </tr>
                             {% endfor %}
-                        </tbody>
-                    </table>
-                    
-
-                {% elif role == 'Attaccanti' %}
-
-                    <table class="table">
-                        <thead>
-                            <tr> <td scope="row"> <h3>{{ role }}</h3> </td></tr>
-                            <tr>
-                                <th scope="col">Id</th>
-                                <th scope="col">Nome</th>
-                                <th scope="col">Squadra</th>
-                                <th scope="col">Val Iniziale</th>
-                                <th scope="col">Val Attuale</th>
-                                <th scope="col">Val Acquisto</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for i in range(6) %}
+ 
+                        {% elif  fanta_Squadre[nomeTeam][3].get(role) >=  n_Giocatori  %}
+                            {% for player in fanta_Squadre[nomeTeam][2].get(role) %}
                                 <tr>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
-                                    <td>-</td>
+                                    <td>{{ player[0] }}</td>
+                                    <td>{{ player[1] }}</td>
+                                    <td>{{ player[3] }}</td>
+                                    <td>{{ player[4] }}</td>
+                                    <td>{{ player[5] }}</td>
                                 </tr>
                             {% endfor %}
-                        </tbody>
-                    </table>
-
-                {% endif %}
-            {% endfor%}
-            </tbody>
-        </table>
+                        {% endif %}
+                    </tbody>
+                </table>
+        {% endfor %}
     {% endfor %}
     
 {% endblock %}
