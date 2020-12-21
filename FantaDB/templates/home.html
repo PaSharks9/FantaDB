@@ -1,0 +1,83 @@
+{% extends "navInterface.html" %}
+
+{% block navbar %}
+    <li class="nav-item active">
+        <a class="nav-link" href="/">Home </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/playerlist">Lista Giocatori</a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link" href="/fantaAsta">Fanta Asta</a>
+    </li> 
+{% endblock %}
+
+
+{% block content %}
+<div>
+    <table class="table">
+        <thead class="thead-dark">
+          <tr>
+            <th scope="col">Id</th>
+            <th scope="col">FantaAllenatore</th>
+            <th scope="col">Email</th>
+            <th scope="col">FantaSquadra</th>
+          </tr>
+        </thead>
+        <tbody>
+            {% for element in data %}               
+                <tr>
+                    <form action="/" method="POST">
+                        <td> {{ element[0] }}
+                            <input type="hidden" name= "Id" value=" {{ element[0] }}">
+                            <input type="hidden" name= "op" value="delete">
+                        </td>
+                        <td> {{ element[2] }}</td>
+                        <td>{{ element[1] }}</td>
+                        <td>{{ element[3] }}</td>
+                        <td width="50 px">
+                            <button type="submit">Cancella</button>
+                        </td>
+                    </form>
+                    <form action="/updateFAll" method="POST" style="margin-left: 5px;">
+                        <td>
+                            <input type="hidden" name= "Id" value=" {{ element[0] }}">
+                            <input type="hidden" name= "name" value=" {{ element[2] }}">
+                            <input type="hidden" name= "email" value=" {{ element[1] }}">
+                            <input type="hidden" name= "op" value="update">
+                            <button type="submit">Modifica</button>
+                        </td>
+                    </form>
+                </tr>
+            {% endfor %}
+        </tbody>
+      </table>
+</div>
+<form class="row g-3 needs-validation" novalidate action="/" method="POST" >
+    <div class="col-md-4" style="margin-left: 30%">
+      <label for="username" class="form-label">Nome</label>
+      <input type="text" width="75" class="form-control" name="username" required>
+      <label for="Email" class="form-label">Email</label>
+      <input type="text" width="75" class="form-control" name="Email">
+      <input type="hidden" name= "op" value="add">
+      <button class="btn btn-primary" type="submit" style="margin-left: 50;">Submit</button>
+
+    </div>
+</form>
+
+<div style="margin-top: 500px;">    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="toast-body" style="color: red;">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+</div>
+
+<div>
+    {% if message %}
+        <h2>{{ message }}</h2>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 from FantaDB.database import Base
-
+import random
 
 # Da finire
 class FantaSquadra(Base):
@@ -48,28 +48,28 @@ class FantaAllenatore(Base):
         return  str(self.id) + '|' + self.email + '|' + self.username
 
 
-    '''def CreateID(self):
-        ids= FantaAllenatore.query.filter(FantaAllenatore.id >= 0)
-        # Massimo 10 giocatori
-        n= random.randint(0,10)
-        while n in ids:
-            n = random.randint(0,10)
-        # print('dentro create, n= ', n)
-        return n'''
+
         
 '''class Allenatore(Base):
     __tablename__= 'allenatore'
-    nome= Column(String(30), primary_key=True, nullable=False)
-    fantaSq_id= Column(Integer, ForeignKey('FantaSquadre.id'))
-    fantasquadra= relationship('FantaSquadra', back_populates='allenatore')
-    squadra= relationship('Squadra', back_populates="allenatore")
+    id_all= Column(Integer, primary_key= True, nullable=False)
+    nome= Column(String(30), nullable=False)
+    squadra= Column(String(30), nullable= False)
+    # fantaSq_id= Column(Integer, ForeignKey('FantaSquadre.id'))
+    # fantasquadra= relationship('FantaSquadra', back_populates='allenatore')
+    # squadra= relationship('Squadra', back_populates="allenatore")
     
-    def __init__(self, nome, squadra):
+    def __init__(self, id, nome, squadra):
         self.nome= nome
         self.squadra= squadra
+        self.id_all= id
 
     def __repr__(self):
-        return self.nome + self.squadra'''
+        dictAll= {}
+        dictAll['self.id_all']= [self.nome, self.squadra]
+        return dictAll'''
+
+
 
 
 class Squadra(Base):
@@ -113,7 +113,7 @@ class Giocatore(Base):
     
     def __repr__(self):
         if self.nomeFantasquadra == None:
-            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + 'none' + '|' + str(self.valI) + '|' + str(self.valA)
+            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + '-' + '|' + str(self.valI) + '|' + str(self.valA)
         else:
             return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + self.nomeFantasquadra + '|' + str(self.valI) + '|' + str(self.valA)
         # return [self.player_id, self.nome, self.ruolo, self.squadra, self.valI, self.valA]

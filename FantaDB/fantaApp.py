@@ -88,6 +88,7 @@ def home():
     
     return render_template('homescreen.html', data=results, user_image= full_filename)
 
+
 @app.route('/updateFAll', methods=['POST', 'GET'])
 def updateFAll():
     nomeFantaTeam, idFantaAll, crediti, dictTeam= getFantaSquadre()
@@ -166,35 +167,29 @@ def fanta_asta():
         db_session.commit()
         
     
-    giocatoriFA= getGiocatori(True) #giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
+    giocatoriFA= getDictGiocatori(True) #giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
     fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, (allenatore), int(crediti)]
     print("fanta_Squadre: ", fanta_Squadre)
     return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename)
 
 
 
-@app.route('/rose', methods=['GET'])
+'''@app.route('/rose', methods=['GET'])
 def rose():
-    giocatoriList= Giocatore.query.filter(Giocatore.nomeFantasquadra != None)
-
-    dict_Squadre= {'BFC Bulagna': []}
-    for giocatore in giocatoriList:
-        player= str(giocatore).split('|')
-        print("player: ", player)
-        dict_Squadre[str(giocatore.nomeFantasquadra)].append(player) 
-
-        print("dict_Squadre", str(dict_Squadre))
-    return render_template('rose.html', dictSquadre= dict_Squadre)
+    allenatore= Allenatore.query.all()
+    for key in allenatore.keys():
+        print("Allenatore: ", allenatore[key])'''
 
 
 @app.route("/playerlist", methods=['GET'])
 def playerlist():
     
-    playersDB= getPlayersDB()
+    playersDB= getDictGiocatori(False)
     teams= Squadra.query.all()
 
+    '''for key in playersDB.keys():
+        print("playersDB: ", playersDB[key])'''
     return render_template('playerlist.html', data=playersDB, squadre=teams, user_image= full_filename)
-
 
 
 
@@ -232,49 +227,6 @@ def CreateID(element):
     # print('dentro create, n= ', n)
     return n
 
-def getGiocatori(giocatoriFreeAgent):
-
-    # giocatoriFreeAgent se settato a True mi restituisce i giocatori che non hanno FantaSquadra, se settato a False mi restituisce tutti i giocatori
-
-    if giocatoriFreeAgent:
-        giocatoreDict= {
-            'P': [],
-            'D': [],
-            'C': [],
-            'A': []
-        }
-
-        giocatoriList= Giocatore.query.filter_by(nomeFantasquadra= None)
-
-        for giocatore in giocatoriList:
-            playerList= str(giocatore).split('|')
-            giocatoreDict[playerList[2]].append([int(playerList[0]), playerList[1], playerList[3], playerList[4], int(playerList[5]), int(playerList[6])])    
-
-        '''for key in giocatoreDict.keys():
-            print("player dentro getGiocatori: ", giocatoreDict[key])'''
-
-    else:
-        giocatoreDict=  {}
-        # Usato nell'init, quindi tolgo fantasquadra
-        giocatoriList= Giocatore.query.all()  # str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra + '|' + self.fantasquadra + '|' + str(self.valI) + '|' + str(self.valA)
-
-        for giocatore in giocatoriList:
-            playerList= str(giocatore).split('|')
-            giocatoreDict[int(playerList[0])]= [playerList[1], playerList[2], playerList[3], int(playerList[5]), int(playerList[6])]  # giocatoreDict[player_id]=  [nome,ruolo,squadra,valI,valA]
-        
-    # Nel caso giocatoriFreeAgent sia true, la chiave del dizionario è il ruolo del giocatore
-    return giocatoreDict
-
-# potrebbe non servirmi più
-def getPlayersDB():
-    playersDB= []
-    players= Giocatore.query.all()
-    for player in players:
-        el= str(player)
-        playerList= el.split('|')
-        playersDB.append( [int(playerList[0]), playerList[1], playerList[2], playerList[3], int(playerList[5]),  int(playerList[6])] )
-    
-    return playersDB
 
 # Come argomento va passato un modello del db, questa funzione effettua una query sul modello del db passato e ne restituisce un array di risultati
 def getData(entity):
@@ -286,7 +238,7 @@ def getData(entity):
         entityList.append(elementList)
     return entityList
 
-
+# getFantaSquadre ---> updateFanta All
 def getFantaSquadre():
     nomeTeam= []
     idFantaAll= []
@@ -305,6 +257,7 @@ def getFantaSquadre():
         crediti.append(int(team[2]))
     
     return nomeTeam, idFantaAll, crediti, dictTeam
+
 
 def get_fantaSquadre_dict():
     dictTeam= {}
@@ -349,10 +302,6 @@ def getPlayersTeam(nomeTeam):
     
     return dictTeam
 
-
-
-
-
 # getFantaMisterDB ---> home
 def getFantaMisterDB():
     results= []
@@ -391,6 +340,42 @@ def getFantaMisterDB():
     
     # print("results: ", results)
     return usernames, emails, results
+
+
+
+# giocatoriFreeAgent se settato a True mi restituisce un dizionario con tutti i giocatori free agent, chiave del dizionario il ruolo
+# Se giocatoriFreeAgent settato a False mi restituisce un dizionario con tutti i giocatori (senza fantasquadra), con chiave l'id del player
+def getDictGiocatori(giocatoriFreeAgent):
+
+    if giocatoriFreeAgent:
+        giocatoreDict= {
+            'P': [],
+            'D': [],
+            'C': [],
+            'A': []
+        }
+
+        giocatoriList= Giocatore.query.filter_by(nomeFantasquadra= None)
+
+        for giocatore in giocatoriList:
+            playerList= str(giocatore).split('|')
+            giocatoreDict[playerList[2]].append([int(playerList[0]), playerList[1], playerList[3], playerList[4], int(playerList[5]), int(playerList[6])])    
+
+        '''for key in giocatoreDict.keys():
+            print("player dentro getGiocatori: ", giocatoreDict[key])'''
+
+    else:
+        giocatoreDict=  {}
+        # Usato nell'init, quindi tolgo fantasquadra
+        giocatoriList= Giocatore.query.all()  # str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra + '|' + self.fantasquadra + '|' + str(self.valI) + '|' + str(self.valA)
+
+        for giocatore in giocatoriList:
+            playerList= str(giocatore).split('|')
+            giocatoreDict[int(playerList[0])]= [playerList[1], playerList[2], playerList[3], int(playerList[5]), int(playerList[6])]  # giocatoreDict[player_id]=  [nome,ruolo,squadra,valI,valA]
+        
+    return giocatoreDict
+
+
 
 
 # Inizializzo i dati nel DB leggendoli e sistemandoli dal file .csv
@@ -489,7 +474,11 @@ def initFileData():
             db_session.commit()
     else:
         print("Giocatori gia inseriti")
-        
+    # ----------------------------------- Lettura Allenatori ------------------------------------------------------------------------ 
+    # df= pd.read_csv(r'C:\Users\lucap\OneDrive\Desktop\Codici\FantaDB\FantaDB\Quotazioni_Fantacalcio.csv', skiprows=1)
+    # dfAll= pd.read_csv(r'C:\Users\lucap\OneDrive\Desktop\Codici\FantaDB\FantaDB\allenatori2020\21.csv')
+
+
 
 if __name__ == "__main__":
     # Inizializzo il DB con tutte le sue tabelle
@@ -498,3 +487,6 @@ if __name__ == "__main__":
     initFileData()
     
     app.run()
+
+
+

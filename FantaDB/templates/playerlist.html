@@ -23,23 +23,17 @@
                 <td>Nome</td>
                 <td>Ruolo</td>
                 <td>Squadra</td>
-                <td>FantaSquadra</td>
                 <td>Qt. A</td>
                 <td>Qt. I</td>
             </tr>
-            {% for player in data %}
+            {% for key in data.keys() %}
                 <tr>
-                    <td>{{ player[0] }}</td>
-                    <td>{{ player[1] }}</td>
-                    <td>{{ player[2] }}</td>
-                    <td>{{ player[3] }}</td>
-                    {% if player[4] == 'none' %}
-                        <td>-</td>
-                    {% else %}
-                        <td>{{ player[4] }}</td>
-                    {% endif %}
-                    <td>{{ player[5] }}</td>
-                    <td>{{ player[6] }}</td>
+                    <td>{{ key }}</td>
+                    <td>{{ data[key][0] }}</td>
+                    <td>{{ data[key][1] }}</td>
+                    <td>{{ data[key][2] }}</td>
+                    <td>{{ data[key][3] }}</td>
+                    <td>{{ data[key][4] }}</td>
                 </tr>
             {% endfor %}
         </table>
