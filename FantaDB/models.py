@@ -112,6 +112,9 @@ class Giocatore(Base):
         self.valA= int(valA)
     
     def __repr__(self):
-        return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + str(self.valI) + '|' + str(self.valA)
+        if self.nomeFantasquadra == None:
+            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + 'none' + '|' + str(self.valI) + '|' + str(self.valA)
+        else:
+            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + self.nomeFantasquadra + '|' + str(self.valI) + '|' + str(self.valA)
         # return [self.player_id, self.nome, self.ruolo, self.squadra, self.valI, self.valA]
 
