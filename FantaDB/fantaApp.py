@@ -156,20 +156,36 @@ def updateFAll():
 
 @app.route('/fantaAsta', methods=['POST', 'GET'])
 def fanta_asta():
-    if request.method == 'POST':
-        nome_FTeam= request.form['nomeFantaSquadra']
-        selected_idPlayer= request.form['selected_idplayer']
+    '''for el in request.form:
+        print("el: ", el)'''
 
+    if request.method == 'POST':
+
+        selected_idPlayer= request.form['selected_idplayer']
+        prezzo= request.form['prezzo']
+        nome_FTeam= request.form['nomeFantaSquadra']
         giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
-        giocatore.nomeFantasquadra= nome_FTeam
-        print("Giocatore: ", giocatore)
-        db_session.add(giocatore)
-        db_session.commit()
+
+        # in entrambi devo fare le operazioni coi crediti
+        if request.form['op'] == "del":
+            giocatore.nomeFantasquadra= None
+            response= calcola_crediti(prezzo, nome_FTeam, request.form['op'])
+
+        elif request.form['op'] == "add":
+            response= calcola_crediti(prezzo, nome_FTeam, request.form['op'])
+            giocatore.nomeFantasquadra= nome_FTeam
+            giocatore.valAcquisto= prezzo
+
+        if response:
+            db_session.add(giocatore)
+            db_session.commit()
+        else: 
+            print("Crediti Insufficenti") # da fare come pop-up
         
     
     giocatoriFA= getDictGiocatori(True) #giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
     fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, (allenatore), int(crediti)]
-    print("fanta_Squadre: ", fanta_Squadre)
+
     return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename)
 
 
@@ -194,6 +210,37 @@ def playerlist():
 
 
 # --------- Funzioni ------------------------------------------------------------------------------------------------------------------
+
+def calcola_crediti(prezzo, nomeTeam, op):
+    fanta_team= FantaSquadra.query.filter_by(TeamName= nomeTeam).first()
+
+    # fantaAllenatoreJoin= FantaAllenatore.query.join(FantaSquadra).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
+    if op == 'add':
+        players= Giocatore.query.filter_by(nomeFantasquadra= nomeTeam)
+        team= []
+        for el in players:
+            players_team= str(el).split('|')
+            team.append(players_team)
+            # print("players: ", str(el).split('|'))
+        
+        # Il prezzo d'acquisto inserito deve essere minore dei crediti residui della fantasquadra + 1 credito per ogni buco rimasto per giocatori e allenatore (squadre da 26)
+        if fanta_team.crediti - int(prezzo) > 26 - len(team):
+            fanta_team.crediti= fanta_team.crediti - int(prezzo)
+            db_session.add(fanta_team)
+            db_session.commit()
+            return True
+        else:
+            return False 
+
+    elif op == 'del':
+        if fanta_team.crediti + int(prezzo) > 300:
+            return False
+        else:
+            fanta_team.crediti= fanta_team.crediti + int(prezzo)
+            db_session.add(fanta_team)
+            db_session.commit()
+            return True
+
 
 @app.teardown_appcontext
 def shutdown_session(exception=None):
@@ -296,9 +343,9 @@ def getPlayersTeam(nomeTeam):
     
     for el in giocatoriList:
         giocatore= str(el).split('|')
-        print("el: ", str(el))
-        print("Giocatore dentro getPlayersTeam: ", giocatore)
-        dictTeam[giocatore[2]].append([int(giocatore[0]), giocatore[1], giocatore[3], giocatore[4], int(giocatore[5]), int(giocatore[6])])
+        # print("el: ", str(el))
+        # print("Giocatore dentro getPlayersTeam: ", giocatore)
+        dictTeam[giocatore[2]].append([int(giocatore[0]), giocatore[1], giocatore[3], giocatore[4], int(giocatore[5]), int(giocatore[6]), int(giocatore[7])])
     
     return dictTeam
 
@@ -469,7 +516,7 @@ def initFileData():
             valAtt.append(element)
 
         for i in range(n):
-            giocatore= Giocatore(id_pl[i], name_pl[i], r[i], sq_pl[i], valI[i], valAtt[i])
+            giocatore= Giocatore(id_pl[i], name_pl[i], r[i], sq_pl[i], valI[i], valAtt[i], 0)
             db_session.add(giocatore)
             db_session.commit()
     else:

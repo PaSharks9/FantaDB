@@ -18,11 +18,12 @@
 {% block content %}
 
     {% for nomeTeam in fanta_Squadre.keys() %}
-        <div style="margin-left: 50%">
+        </br>   
+        <div style="margin-left: 40%;" >
             <h2> {{ nomeTeam }}</h2>
             <p>Fanta Allenatore: {{ fanta_Squadre[nomeTeam][0] }}</p>
             <p>Crediti Disponibili: {{ fanta_Squadre[nomeTeam][2] }}</p>
-        </div>
+        </div></br>
         {% for role in ['P', 'D', 'C', 'A'] %}
 
             {% if role == 'P' %}
@@ -41,38 +42,33 @@
                 {% set ruolo = 'Attaccanti' %}
                 {% set n_Giocatori= 6 %}
             {% endif %}
+                <div>
+                    <h3>{{ ruolo }}</h3>
+                    <p>Giocatori posseduti: {{ fanta_Squadre[nomeTeam][1].get(role)|length }}/ {{ n_Giocatori }}</p>
+                    {% if fanta_Squadre[nomeTeam][1].get(role)|length < n_Giocatori %}
+                        <form action="fantaAsta" method="POST">                        
+                            <div class="form-row align-items-center" style="display:inline-block; ">
+
+                                    <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Scegli giocatore:</label>
+                                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="selected_idplayer">
+                                        <option selected>Choose...</option>
+                                        {% for player in giocatoriFADict.get(role)  %}
+                                            <option value="{{ player[0] }}">{{ player[1] }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">            
+                                    <input type="hidden" name= "op" value="add">                         
+                            </div>
+                            <div class="form-row align-items-center" style="display:inline-block;" >
+                                    <input type="number" name="prezzo">
+                                    <button type="submit" class="btn btn-primary">Compra!</button>
+                            </div>
+                        </form>
+                    {% endif %}
+                </div>
+                
                 <table class="table">
                     <thead class="thead-dark">
-                        <tr> 
-                            <td scope="row"><h3>{{ ruolo }}</h3></td>
-
-                            <form action="fantaAsta" method="POST">
-                                <td>
-                                    <div class="form-row align-items-center">
-                                        <div class="col-auto my-1">
-                                        <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">{{ ruolo }}</label>
-                                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="selected_idplayer">
-                                            <option selected>Choose...</option>
-                                            {% for player in giocatoriFADict.get(role)  %}
-                                                <option value="{{ player[0] }}">{{ player[1] }}</option>
-                                            {% endfor %}
-                                        </select>
-                                        <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">
-                                        </div>                                        
-                                    </div>
-                                </td>
-                                <td>
-                                    <div class="form-row align-items-center">
-                                        <div class="col-auto my-1">
-                                            <button type="submit" class="btn btn-primary">Compra!</button>
-                                        </div>
-                                    </div>
-                                </td>
-                            </form>
-                        </tr>
-                        <tr>
-                            <td><p>Giocatori posseduti: {{ fanta_Squadre[nomeTeam][1].get(role)|length }}/ {{ n_Giocatori }}</p> </td>
-                        </tr>
                         <tr>
                             <th scope="col">Id</th>
                             <th scope="col">Nome</th>
@@ -83,7 +79,6 @@
                         </tr>
                     </thead>
                     <tbody>
-                        {% if fanta_Squadre[nomeTeam][1].get(role)|length >= 0 and  n_Giocatori > fanta_Squadre[nomeTeam][1].get(role)|length  %}
                             {% for player in fanta_Squadre[nomeTeam][1].get(role) %}
                                 <tr>
                                     <td>{{ player[0] }}</td>
@@ -91,22 +86,21 @@
                                     <td>{{ player[2] }}</td>
                                     <td>{{ player[4] }}</td>
                                     <td>{{ player[5] }}</td>
+                                    <td>{{ player[6] }}</td>
+                                    <td>
+                                        <form action="fantaAsta" method="POST">
+                                            <input type="hidden" name= "selected_idplayer" value="{{ player[0] }}">
+                                            <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">     
+                                            <input type="hidden" name="op" value="del">
+                                            <input type="hidden" name= "prezzo" value="{{ player[6] }}">
+                                            <button type="submit" class="btn btn-primary">Elimina</button>
+                                        </form>
+                                    </td>
                                 </tr>
                             {% endfor %}
- 
-                        {% elif  fanta_Squadre[nomeTeam][1].get(role)|length >=  n_Giocatori  %}
-                            {% for player in fanta_Squadre[nomeTeam][1].get(role) %}
-                                <tr>
-                                    <td>{{ player[0] }}</td>
-                                    <td>{{ player[1] }}</td>
-                                    <td>{{ player[3] }}</td>
-                                    <td>{{ player[4] }}</td>
-                                    <td>{{ player[5] }}</td>
-                                </tr>
-                            {% endfor %}
-                        {% endif %}
                     </tbody>
                 </table>
+            </br><br><br>
         {% endfor %}
     {% endfor %}
     

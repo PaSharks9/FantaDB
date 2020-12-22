@@ -102,7 +102,7 @@ class Giocatore(Base):
 
     fantaTeam= relationship('FantaSquadra')
 
-    def __init__(self, player_id, nome, ruolo, squadra, valI, valA):
+    def __init__(self, player_id, nome, ruolo, squadra, valI, valA, valAcq):
         self.player_id= int(player_id)
         self.nome= nome
         self.ruolo= ruolo
@@ -110,11 +110,12 @@ class Giocatore(Base):
         self.nomeFantasquadra= None
         self.valI= int(valI)
         self.valA= int(valA)
+        self.valAcquisto= valAcq
     
     def __repr__(self):
         if self.nomeFantasquadra == None:
-            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + '-' + '|' + str(self.valI) + '|' + str(self.valA)
+            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + '-' + '|' + str(self.valI) + '|' + str(self.valA) + '|' + str(self.valAcquisto)
         else:
-            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + self.nomeFantasquadra + '|' + str(self.valI) + '|' + str(self.valA)
+            return str(self.player_id) +'|' + self.nome + '|' + self.ruolo + '|' + self.squadra  + '|' + self.nomeFantasquadra + '|' + str(self.valI) + '|' + str(self.valA) + '|' + str(self.valAcquisto)
         # return [self.player_id, self.nome, self.ruolo, self.squadra, self.valI, self.valA]
 
