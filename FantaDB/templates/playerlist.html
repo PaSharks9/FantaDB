@@ -14,41 +14,42 @@
 
 
 {% block content %}
-
-    <div style="width:800px; margin:0 auto;">
-        <table border="solid black 5px" style="margin:0 auto;" width="500px">
-            <tr><h2 style="text-align: center; margin:0 auto;"> Lista Giocatori </h2></tr>
-            <tr>
-                <td>Id</td>
-                <td>Nome</td>
-                <td>Ruolo</td>
-                <td>Squadra</td>
-                <td>Qt. A</td>
-                <td>Qt. I</td>
-            </tr>
-            {% for key in data.keys() %}
+    <div style="display:inline-block;">
+        <div style="width:800px; display:inline-block; margin-top: 5%;">
+            <table border="solid black 5px" style="margin:0 auto;" width="500px">
+                <tr><h2 style="text-align: center; margin:0 auto;"> Lista Giocatori </h2></tr>
                 <tr>
-                    <td>{{ key }}</td>
-                    <td>{{ data[key][0] }}</td>
-                    <td>{{ data[key][1] }}</td>
-                    <td>{{ data[key][2] }}</td>
-                    <td>{{ data[key][3] }}</td>
-                    <td>{{ data[key][4] }}</td>
+                    <td>Id</td>
+                    <td>Nome</td>
+                    <td>Ruolo</td>
+                    <td>Squadra</td>
+                    <td>Qt. A</td>
+                    <td>Qt. I</td>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for key in data.keys() %}
+                    <tr>
+                        <td>{{ key }}</td>
+                        <td>{{ data[key][0] }}</td>
+                        <td>{{ data[key][1] }}</td>
+                        <td>{{ data[key][2] }}</td>
+                        <td>{{ data[key][3] }}</td>
+                        <td>{{ data[key][4] }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    
+        <div style="display:inline-block;">
+            <table border="solid black 1px">
+                <tr><th style="text-align: center;"> Squadre SerieA</th></tr>
+                {% for team in squadre %}
+                    <tr>
+                        <td style="align-items: center;">{{ team }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
-
-    <div style="float: right; margin:0 auto">
-        
-        <table border="solid black 1px">
-            <tr><th style="text-align: center;"> Squadre SerieA</th></tr>
-            {% for team in squadre %}
-                <tr>
-                    <td style="align-items: center;">{{ team }}</td>
-                </tr>
-            {% endfor %}
-        </table>
-    </div>
+    
     
 {% endblock %}

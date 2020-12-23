@@ -5,7 +5,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, Date, Integer, Text, create_engine, inspect, exc, join
 from sqlalchemy.sql import select
 
-from FantaDB.models import FantaAllenatore, Squadra, Giocatore, FantaSquadra
+from FantaDB.models import FantaAllenatore, Squadra, Giocatore, FantaSquadra, Allenatore
 from FantaDB.database import db_session, init_db
 
 # Lettura file xsl
@@ -148,6 +148,7 @@ def updateFAll():
             # print("Utente modificato con successo")
             return redirect('/')
 
+
     elif request.method == 'GET':
         return render_template('homescreen.html', message=" Errore, pagina visitata in GET")
     
@@ -156,45 +157,63 @@ def updateFAll():
 
 @app.route('/fantaAsta', methods=['POST', 'GET'])
 def fanta_asta():
-    '''for el in request.form:
-        print("el: ", el)'''
+    for el in request.form:
+
+        print(el, ":", request.form[el])
 
     if request.method == 'POST':
 
-        selected_idPlayer= request.form['selected_idplayer']
-        prezzo= request.form['prezzo']
+        response= False
+        responseAll= False
         nome_FTeam= request.form['nomeFantaSquadra']
-        giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
-
+        op= request.form['op']
+       
         # in entrambi devo fare le operazioni coi crediti
-        if request.form['op'] == "del":
-            giocatore.nomeFantasquadra= None
-            response= calcola_crediti(prezzo, nome_FTeam, request.form['op'])
+        if op == "del":
+            prezzo= request.form['prezzo']
+            selected_idPlayer= request.form['selected_idplayer']
+            giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
 
-        elif request.form['op'] == "add":
-            response= calcola_crediti(prezzo, nome_FTeam, request.form['op'])
+            giocatore.nomeFantasquadra= None
+            response= calcola_crediti(prezzo, nome_FTeam, op, False)
+
+        elif op == "add":
+            prezzo= request.form['prezzo']
+            selected_idPlayer= request.form['selected_idplayer']
+            giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
+
+            response= calcola_crediti(prezzo, nome_FTeam, op, False)
             giocatore.nomeFantasquadra= nome_FTeam
             giocatore.valAcquisto= prezzo
+
+        elif op == "updtAll":
+            prezzo= request.form['prezzo']
+            nAllenatore= request.form['selected_allenatore']
+            team= FantaSquadra.query.filter_by(TeamName= nome_FTeam).first()
+            responseAll= calcola_crediti(prezzo, nome_FTeam, 'add', True)
+            team.allenatore= nAllenatore
+
+        elif op == "delAll":
+            nAllenatore= request.form['selected_allenatore']
+            team= FantaSquadra.query.filter_by(TeamName= nome_FTeam).first()
+            team.allenatore= None
+            prezzo= team.valAcquistoAll
+            responseAll= calcola_crediti(prezzo, nome_FTeam, 'del', True)
 
         if response:
             db_session.add(giocatore)
             db_session.commit()
+        elif responseAll:
+            db_session.add(team)
+            db_session.commit()
         else: 
             print("Crediti Insufficenti") # da fare come pop-up
         
-    
-    giocatoriFA= getDictGiocatori(True) #giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
-    fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, (allenatore), int(crediti)]
+    allenatoriFA= getAllenatori(True)  # allenatori_FA[nomeall]= squadraAll
+    giocatoriFA= getDictGiocatori(True) # giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
+    fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, int(crediti), allenatore]
 
-    return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename)
-
-
-
-'''@app.route('/rose', methods=['GET'])
-def rose():
-    allenatore= Allenatore.query.all()
-    for key in allenatore.keys():
-        print("Allenatore: ", allenatore[key])'''
+    return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA)
 
 
 @app.route("/playerlist", methods=['GET'])
@@ -211,7 +230,7 @@ def playerlist():
 
 # --------- Funzioni ------------------------------------------------------------------------------------------------------------------
 
-def calcola_crediti(prezzo, nomeTeam, op):
+def calcola_crediti(prezzo, nomeTeam, op, allenatore):
     fanta_team= FantaSquadra.query.filter_by(TeamName= nomeTeam).first()
 
     # fantaAllenatoreJoin= FantaAllenatore.query.join(FantaSquadra).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
@@ -226,15 +245,17 @@ def calcola_crediti(prezzo, nomeTeam, op):
         # Il prezzo d'acquisto inserito deve essere minore dei crediti residui della fantasquadra + 1 credito per ogni buco rimasto per giocatori e allenatore (squadre da 26)
         if fanta_team.crediti - int(prezzo) > 26 - len(team):
             fanta_team.crediti= fanta_team.crediti - int(prezzo)
+            if allenatore:
+                fanta_team.valAcquistoAll= prezzo
             db_session.add(fanta_team)
             db_session.commit()
             return True
         else:
             return False 
 
-    elif op == 'del':
+    elif op == 'del':  
         if fanta_team.crediti + int(prezzo) > 300:
-            return False
+            return Falses
         else:
             fanta_team.crediti= fanta_team.crediti + int(prezzo)
             db_session.add(fanta_team)
@@ -311,7 +332,7 @@ def get_fantaSquadre_dict():
     misterDict= {}
 
 
-    # self.TeamName + '|' + str(self.IdFantaAllenatore) + '|' + str(self.crediti)
+    # self.TeamName + '|' + str(self.IdFantaAllenatore) + '|' + str(self.crediti) + '|' + allenatore
     squadre= FantaSquadra.query.all()
 
     # str(self.id) + '|' + self.email + '|' + self.username
@@ -326,7 +347,7 @@ def get_fantaSquadre_dict():
     for squadra in squadre:
         team= str(squadra).split('|')
         fantaTeam_players= getPlayersTeam(team[0]) # fantaTeam_players[ruolo]= player_id, nome, squadra, nomeFantasquadra, valI, valA  
-        dictTeam[team[0]]= [misterDict[int(team[1])], fantaTeam_players, int(team[2])]   #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, (allenatore), int(crediti)]
+        dictTeam[team[0]]= [misterDict[int(team[1])], fantaTeam_players, int(team[2]), team[3]]   #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, int(crediti), allenatore]
 
     return dictTeam
 
@@ -366,7 +387,7 @@ def getFantaMisterDB():
     for res in fantaSquadreJoin:
         element= str(res).split('|')
                    # idFantaAll    nomeFantaTeam, Crediti
-        joinResults[element[1]]= [element[0], element[2]]
+        joinResults[element[1]]= [element[0], element[2], element[3]]
 
     # Spezzo la rappresentazione di FantaAllenatore per l'elaborazione
     for allenatore in fantaAllenatoriDB:
@@ -423,6 +444,33 @@ def getDictGiocatori(giocatoriFreeAgent):
     return giocatoreDict
 
 
+def getAllenatori(allenatoriFreeAgent):
+
+    allenatoriDictDB= {} # dizionario dove sono presenti tutti gli allenatori nel db, free agent o no
+    allenatoriDB= Allenatore.query.all()
+
+    for el in allenatoriDB:
+        allenatore= str(el).split('|') 
+        allenatoriDictDB[allenatore[0]]= allenatore[1]
+
+    if allenatoriFreeAgent:  # se è true sto chiedendo un dizionario di allenatori senza una fanta squadra assegnata
+
+        allenatori_FA=  {}  # allenatori free agent, ovvero non appartenenti a nessuna fanta squadra
+
+        fantaSq_List= FantaSquadra.query.join(Allenatore).filter(FantaSquadra.allenatore == Allenatore.nome)
+        fantaSq_All= [] # lista con presente tutti i nomi degli allenatori assegnati ad una fantasquadra
+        for el in fantaSq_List:
+            fantaSq= str(el).split('|')
+            fantaSq_All.append(fantaSq[3])
+
+        for key in allenatoriDictDB.keys(): # la chiave di questo dizionario è il nome dell'allenatore (che essendo nome e cognome è univoco (quasi sempre))
+            if key not in fantaSq_All:
+                allenatori_FA[key]= allenatoriDictDB[key]
+
+        return allenatori_FA # allenatori_FA[nomeall]= squadraAll
+
+    else:
+        return allenatoriDictDB  # allenatoriDictDB[nomeall] = squadraAll       # la squadra dell'allenatore è la squadra reale NON la fantasquadra
 
 
 # Inizializzo i dati nel DB leggendoli e sistemandoli dal file .csv
@@ -523,9 +571,29 @@ def initFileData():
         print("Giocatori gia inseriti")
     # ----------------------------------- Lettura Allenatori ------------------------------------------------------------------------ 
     # df= pd.read_csv(r'C:\Users\lucap\OneDrive\Desktop\Codici\FantaDB\FantaDB\Quotazioni_Fantacalcio.csv', skiprows=1)
-    # dfAll= pd.read_csv(r'C:\Users\lucap\OneDrive\Desktop\Codici\FantaDB\FantaDB\allenatori2020\21.csv')
+    dfAll= pd.read_csv(r'C:\Users\lucap\OneDrive\Desktop\Codici\FantaDB\FantaDB\allenatori2020\21.csv')
+    allenatoreList= []
+    allenatoreDB= Allenatore.query.all()
+    for mister in allenatoreDB:
+        allenatoreList.append(str(mister).split('|'))
+    n= dfAll['Allenatore'].count()
 
+    if  len(allenatoreList) == 0: 
+        nomeAll= []
+        squadra_All= []
 
+        for el in dfAll['Allenatore']:
+            nomeAll.append(el)
+        
+        for el in dfAll['Squadra']:
+            squadra_All.append(el)
+
+        for i in range(n):
+            allenatore= Allenatore(nomeAll[i], squadra_All[i])
+            db_session.add(allenatore)
+            db_session.commit()
+    else:
+        print("Allenatori già inseriti")
 
 if __name__ == "__main__":
     # Inizializzo il DB con tutte le sue tabelle

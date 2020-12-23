@@ -12,14 +12,18 @@
 	  L'inserimento dei giocatori sarà creato da una form con autocompletamento fornendo in un menu a tendina i giocatori liberi disponibili per quel ruolo
 
 
-- Effettuare refactor (FATTO)
+- (FATTO) Effettuare 1o refactor 
 
-- Aggiungere pulsante modifica squadra per togliere dei giocatori che per sbagli si ha comprato (Fatto)
+- (FATTO) Aggiungere pulsante modifica squadra per togliere dei giocatori che per sbagli si ha comprato 
 
-- Aggiungere controllo dei crediti
+- (FATTO) Aggiungere controllo dei crediti
 
-- Aggiungere l'allenatore alla squadra
+- (FATTO) Aggiungere l'allenatore alla squadra
 
 -  Imporre limite massimo di 10 fanta allenatori
 
+- Refactor Finale
+
 - IMPARARE A FARE I POP_UP
+
+- Sistemare HTML
