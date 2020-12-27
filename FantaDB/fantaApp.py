@@ -26,7 +26,6 @@ app.config['SECRET_KEY'] = 'lucailpesce' # Settata per usare il messaggio flash
 app.config['IMAGES']= IMAGES
 full_filename= os.path.join(app.config['IMAGES'],  'fantacalcioLogo.jpg')
 
-
 #---- Routes  -------------------------------------------------------------------------------------------------------------------------
 
 
@@ -46,16 +45,27 @@ def home():
             idForm=  request.form['Id']
             # print("idForm :", idForm)
 
-            if len(idForm) > 0:
-                # Se il fantaAllenatore che vogliamo eliminare ha una fantasquadra prima eliminiamo questa poi lui (si potrebbe aggiungere che una volta eliminato l'utente, tutte le info relative a lui (compreso i suoi giocatori) vengono cancellate)
-                for mister in results:
-                    if int(idForm) == int(mister[0]):
-                        FantaSquadra.query.filter_by(IdFantaAllenatore= idForm).delete()
-                        db_session.commit()
-                
-                FantaAllenatore.query.filter_by(id=idForm).delete()
+
+            # Bisogna resettare l'attributo fantasquadra di tutti i giocatori facenti parte di questa fantasquadra in quanto è una chiave esterna verso la fantasquadra che si vuole cancellare
+            fantaTeam= request.form['fantaTeam']
+            giocatoriList= Giocatore.query.filter_by(nomeFantasquadra= fantaTeam).all()
+
+            for player in giocatoriList:
+                print("player: ", str(player))
+                player.nomeFantasquadra= None
+                db_session.add(player)
                 db_session.commit()
-                return redirect('/')
+
+            # Se il fantaAllenatore che vogliamo eliminare ha una fantasquadra prima eliminiamo questa poi lui (si potrebbe aggiungere che una volta eliminato l'utente, tutte le info relative a lui (compreso i suoi giocatori) vengono cancellate)
+            # Avendo già effettuato una query e avendo ottenuto già i risultati riguardo i mister, non sto a reinterrogare il DB ma uso i dati che ho già letto
+            for mister in results:
+                if int(idForm) == int(mister[0]):
+                    FantaSquadra.query.filter_by(IdFantaAllenatore= idForm).delete()
+                    db_session.commit()
+
+            FantaAllenatore.query.filter_by(id=idForm).delete()
+            db_session.commit()
+            return redirect('/')
         else:
             # Controllo il formato dell'email 
             print("username :", request.form['username'])
@@ -157,9 +167,9 @@ def updateFAll():
 
 @app.route('/fantaAsta', methods=['POST', 'GET'])
 def fanta_asta():
-    for el in request.form:
+    '''for el in request.form:
 
-        print(el, ":", request.form[el])
+        print(el, ":", request.form[el]) '''
 
     if request.method == 'POST':
 
@@ -170,16 +180,23 @@ def fanta_asta():
        
         # in entrambi devo fare le operazioni coi crediti
         if op == "del":
-            prezzo= request.form['prezzo']
+            
             selected_idPlayer= request.form['selected_idplayer']
+            prezzo= request.form['prezzo']
             giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
 
             giocatore.nomeFantasquadra= None
             response= calcola_crediti(prezzo, nome_FTeam, op, False)
 
         elif op == "add":
-            prezzo= request.form['prezzo']
+
+            prezzo= int(request.form['prezzo'])
             selected_idPlayer= request.form['selected_idplayer']
+            if selected_idPlayer == "Giocatori..." or prezzo == "Prezzo...":
+                fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
+                return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA)
+            
+
             giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
 
             response= calcola_crediti(prezzo, nome_FTeam, op, False)
@@ -187,13 +204,19 @@ def fanta_asta():
             giocatore.valAcquisto= prezzo
 
         elif op == "updtAll":
-            prezzo= request.form['prezzo']
+            print("dentro updtAll")
+            prezzo= int(request.form['prezzo'])
             nAllenatore= request.form['selected_allenatore']
+            if nAllenatore == "Scegli..." or prezzo == "Prezzo..." :
+                fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
+                return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA)
+
             team= FantaSquadra.query.filter_by(TeamName= nome_FTeam).first()
             responseAll= calcola_crediti(prezzo, nome_FTeam, 'add', True)
             team.allenatore= nAllenatore
 
         elif op == "delAll":
+
             nAllenatore= request.form['selected_allenatore']
             team= FantaSquadra.query.filter_by(TeamName= nome_FTeam).first()
             team.allenatore= None
@@ -209,10 +232,11 @@ def fanta_asta():
         else: 
             print("Crediti Insufficenti") # da fare come pop-up
         
-    allenatoriFA= getAllenatori(True)  # allenatori_FA[nomeall]= squadraAll
+    '''allenatoriFA= getAllenatori(True)  # allenatori_FA[nomeall]= squadraAll
     giocatoriFA= getDictGiocatori(True) # giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
-    fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, int(crediti), allenatore]
+    fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, int(crediti), allenatore]'''
 
+    fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
     return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA)
 
 
@@ -295,6 +319,11 @@ def CreateID(element):
     # print('dentro create, n= ', n)
     return n
 
+def get_asta_view():
+    allenatoriFA= getAllenatori(True)  # allenatori_FA[nomeall]= squadraAll
+    giocatoriFA= getDictGiocatori(True) # giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
+    fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, int(crediti), allenatore]
+    return fanta_Squadre, giocatoriFA, allenatoriFA
 
 # Come argomento va passato un modello del db, questa funzione effettua una query sul modello del db passato e ne restituisce un array di risultati
 def getData(entity):

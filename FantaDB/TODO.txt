@@ -20,7 +20,7 @@
 
 - (FATTO) Aggiungere l'allenatore alla squadra
 
--  Imporre limite massimo di 10 fanta allenatori
+-  Imporre limite massimo di 10 fanta allenatori(FACOLTATIVO)
 
 - Refactor Finale
 

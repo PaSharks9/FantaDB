@@ -13,127 +13,160 @@
 {% endblock %}
 
 {% block content %}
-
-    {% for nomeTeam in fanta_Squadre.keys() %}
-        </br>   
-        <div style="margin-left: 40%;" >
-            <h2> {{ nomeTeam }}</h2>
-            <p>Fanta Allenatore: {{ fanta_Squadre[nomeTeam][0] }}</p>
-            {% if fanta_Squadre[nomeTeam][3] == '-'%}
-                <form action="fantaAsta" method="POST">
-                    <div class="form-row align-items-center" style="display:inline-block; ">
-                        <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Scegli allenatore:</label>
-                        <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="selected_allenatore">
-                            <option selected>Scegli...</option>
-                            {% for key in allenatoriFA.keys()  %}
-                                <option value="{{ key }}">{{ key }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                    <div class="form-row align-items-center" style="display:inline-block;" >
-                        <input type="number" name="prezzo">
-                        <input type="hidden" name="op" value="updtAll">
-                        <input type="hidden" name= "nomeFantaSquadra" value= "{{nomeTeam}}">
-                        <button type="submit" class="btn btn-primary">Compra!</button>
-                    </div>
-                </form>
-            {% else %}
-                <form action="fantaAsta" method="POST">
-                    <p style="display:inline-block;" >Allenatore: {{ fanta_Squadre[nomeTeam][3] }}</p>
-                        
-                    <input type="hidden" name= "selected_allenatore" value="{{ fanta_Squadre[nomeTeam][3] }}">
-                    <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">     
-                    <input type="hidden" name="op" value="delAll">
-                    <button type="submit" class="btn btn-primary" style="display:inline-block;" >Elimina</button>
-                </form>
-            {% endif %}
-            <p>Crediti Disponibili: {{ fanta_Squadre[nomeTeam][2] }}</p>
-        </div></br>
-        {% for role in ['P', 'D', 'C', 'A'] %}
-
-            {% if role == 'P' %}
-                {% set ruolo = 'Portieri' %}
-                {% set n_Giocatori= 3 %}    
-
-            {% elif role == 'D'%}
-                {% set ruolo = 'Difensori' %}
-                {% set n_Giocatori= 8 %}
-
-            {% elif role == 'C' %}
-                {% set ruolo = 'Centrocampisti' %}
-                {% set n_Giocatori= 8 %}
-
-            {% elif role == 'A' %}
-                {% set ruolo = 'Attaccanti' %}
-                {% set n_Giocatori= 6 %}
-            {% endif %}
-                <div>
-                    {% if role == 'P' %}
-                        <h3 style="color: sandybrown;">{{ ruolo }}</h3>
-                    {% elif role == 'D' %}
-                        <h3 style="color: green;">{{ ruolo }}</h3>
-                    {% elif role == 'C' %}
-                        <h3 style="color: rgb(32, 35, 212);">{{ ruolo }}</h3>
-                    {% elif role == 'A' %}
-                        <h3 style="color: red;">{{ ruolo }}</h3>
-                    {% endif %}
-                    <p>Giocatori posseduti: {{ fanta_Squadre[nomeTeam][1].get(role)|length }}/ {{ n_Giocatori }}</p>
-                    {% if fanta_Squadre[nomeTeam][1].get(role)|length < n_Giocatori %}
-                        <form action="fantaAsta" method="POST">                        
-                            <div class="form-row align-items-center" style="display:inline-block; ">
-                                    <label class="mr-sm-2 sr-only" for="inlineFormCustomSelect">Scegli giocatore:</label>
-                                    <select class="custom-select mr-sm-2" id="inlineFormCustomSelect" name="selected_idplayer">
-                                        <option selected>Choose...</option>
-                                        {% for player in giocatoriFADict.get(role)  %}
-                                            <option value="{{ player[0] }}">{{ player[1] }}</option>
+    <div style="margin-top: 1.5cm; background-image: url('/static/images/sfondo_calcio.jpg');">
+        </br>
+        <div class="card" style="width: 80%; margin-left: 10%; margin-right: 10%">
+        {% if fanta_Squadre.keys()|length == 0 %}
+            <h2 class="card-title" style="height: 1000 px;"> Nessuna squadra inserita al momento</h2>
+            <p> Per aggiungere fanta squadre tornare nella home e assegnare una fantasquadra ad un utente</p>
+        {% else %}
+            {% for nomeTeam in fanta_Squadre.keys() %}
+                    <h2 class= "card-title" style="margin-left: 40%;"> {{ nomeTeam }}</h2>
+                    </br>
+                    <div>
+                        <p class="card-text" style="margin-left: 5px">Fanta Allenatore: {{ fanta_Squadre[nomeTeam][0] }}</p>
+                        <p class="card-text" style="margin-left: 5px">Crediti Disponibili: {{ fanta_Squadre[nomeTeam][2] }}</p>
+                        {% if fanta_Squadre[nomeTeam][3] == '-'%}
+                            <form action="fantaAsta" method="POST">
+                                <div class="input-group" style="width: 500px; margin-left: 5px">
+                                    <select class="form-select" id="nomeAll" name="selected_allenatore">
+                                        <option selected>Allenatori..</option>
+                                        {% for key in allenatoriFA.keys()  %}
+                                        <option value="{{ key }}">{{ key }}</option>
                                         {% endfor %}
                                     </select>
-                                    <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">            
-                                    <input type="hidden" name= "op" value="add">                         
-                            </div>
-                            <div class="form-row align-items-center" style="display:inline-block;" >
-                                    <input type="number" name="prezzo">
-                                    <button type="submit" class="btn btn-primary">Compra!</button>
-                            </div>
-                        </form>
-                    {% endif %}
-                </div>
+                                    <select class="form-select" id="prezzo" name="prezzo">
+                                        <option selected>Prezzo...</option>
+                                        {% for i in range(1,274) %}   <!-- che sono 300 fantacrediti totali - 26 che sono i posti di una squadra -->
+                                            <option value="{{ i }}">{{ i }}</option>
+                                        {% endfor %}
+                                    </select>
+                                    <input type="hidden" name="op" value="updtAll">
+                                    <input type="hidden" name= "nomeFantaSquadra" value= "{{nomeTeam}}">
+                                    <button class="btn btn-outline-secondary" type="submit">Compra</button>
+                                </div>
+                            </form>
+                        {% else %}
+                            <form action="fantaAsta" method="POST">
+                                <p style="margin-left: 5px; display: inline-block;" >Allenatore: {{ fanta_Squadre[nomeTeam][3] }}</p>                            
+                                <input type="hidden" name= "selected_allenatore" value="{{ fanta_Squadre[nomeTeam][3] }}">
+                                <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">     
+                                <input type="hidden" name="op" value="delAll">
+                                <button class="btn btn-outline-secondary" type="submit">Elimina</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    </br>
+                    <div class="card-body">
+                        {% for role in ['P', 'D', 'C', 'A'] %}
                 
-                <table class="table">
-                    <thead class="thead-dark">
-                        <tr>
-                            <th scope="col">Id</th>
-                            <th scope="col">Nome</th>
-                            <th scope="col">Squadra</th>
-                            <th scope="col">Val Iniziale</th>
-                            <th scope="col">Val Attuale</th>
-                            <th scope="col">Val Acquisto</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                            {% for player in fanta_Squadre[nomeTeam][1].get(role) %}
-                                <tr>
-                                    <td>{{ player[0] }}</td>
-                                    <td>{{ player[1] }}</td>
-                                    <td>{{ player[2] }}</td>
-                                    <td>{{ player[4] }}</td>
-                                    <td>{{ player[5] }}</td>
-                                    <td>{{ player[6] }}</td>
-                                    <td>
-                                        <form action="fantaAsta" method="POST">
-                                            <input type="hidden" name= "selected_idplayer" value="{{ player[0] }}">
-                                            <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">     
-                                            <input type="hidden" name="op" value="del">
-                                            <input type="hidden" name= "prezzo" value="{{ player[6] }}">
-                                            <button type="submit" class="btn btn-primary">Elimina</button>
-                                        </form>
-                                    </td>
-                                </tr>
-                            {% endfor %}
-                    </tbody>
-                </table>
-            </br><br><br>
-        {% endfor %}
-    {% endfor %}
+                            {% if role == 'P' %}
+                                {% set ruolo = 'Portieri' %}
+                                {% set n_Giocatori= 3 %}    
+                
+                            {% elif role == 'D'%}
+                                {% set ruolo = 'Difensori' %}
+                                {% set n_Giocatori= 8 %}
+                
+                            {% elif role == 'C' %}
+                                {% set ruolo = 'Centrocampisti' %}
+                                {% set n_Giocatori= 8 %}
+                
+                            {% elif role == 'A' %}
+                                {% set ruolo = 'Attaccanti' %}
+                                {% set n_Giocatori= 6 %}
+                            {% endif %}
+                                
+                            {% if role == 'P' %}
+                                <h3 class= "card-title" style="color: sandybrown; margin-left: 40%;">{{ ruolo }} {{ fanta_Squadre[nomeTeam][1].get(role)|length }}  / {{ n_Giocatori }}</h3>
+                            {% elif role == 'D' %}
+                                <h3 class= "card-title" style="color: green; margin-left: 40%;">{{ ruolo }} {{ fanta_Squadre[nomeTeam][1].get(role)|length }}  / {{ n_Giocatori }}</h3>
+                            {% elif role == 'C' %}
+                                <h3 class= "card-title" style="color: rgb(32, 35, 212); margin-left: 40%; ">{{ ruolo }} {{ fanta_Squadre[nomeTeam][1].get(role)|length }}  / {{ n_Giocatori }}</h3>
+                            {% elif role == 'A' %}
+                                <h3 class= "card-title" style="color: red; margin-left: 40%;">{{ ruolo }} {{ fanta_Squadre[nomeTeam][1].get(role)|length }}  / {{ n_Giocatori }}</h3>
+                            {% endif %}
+                            {% if fanta_Squadre[nomeTeam][1].get(role)|length < n_Giocatori %}
+                                <form action="fantaAsta" method="POST">                        
+                                    <div>
+                                        <select class="form-select" style="width: 250px; margin-left: 40%;" id="selected_idplayer" name="selected_idplayer">
+                                            <option selected>Giocatori..</option>
+                                            {% for player in giocatoriFADict.get(role)  %}
+                                            <option value="{{ player[0] }}">{{ player[1] }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <select class="form-select" style="width: 250px; margin-left: 40%;" id="prezzo" name="prezzo">
+                                            <option selected>Prezzo...</option>
+                                            {% for i in range(1,300) %}
+                                                <option value="{{ i }}">{{ i }}</option>
+                                            {% endfor %}
+                                        </select>
+                                        <input type="hidden" name="op" value="add">
+                                        <input type="hidden" name= "nomeFantaSquadra" value= "{{nomeTeam}}">
+                                        <br>
+                                        {% if role == 'P' %}
+                                            <button type="submit" class="btn btn-warning" style="margin-left: 45%;">Compra!</button>
+                                        {% elif role == 'D' %}
+                                            <button type="submit" class="btn btn-success" style="margin-left: 45%;">Compra!</button>
+                                        {% elif role == 'C' %}
+                                            <button type="submit" class="btn btn-primary" style="margin-left: 45%;">Compra!</button>
+                                        {% elif role == 'A' %}
+                                            <button type="submit" class="btn btn-danger" style="margin-left: 45%;">Compra!</button>
+                                        {% endif %}
+                                    </div>
+                                </form>
+                            {% endif %}
+                            <br>
+                            </br>  
+                            <table class="table">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">Id</th>
+                                        <th scope="col">Nome</th>
+                                        <th scope="col">Squadra</th>
+                                        <th scope="col">Val Iniziale</th>
+                                        <th scope="col">Val Attuale</th>
+                                        <th scope="col">Val Acquisto</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                        {% for player in fanta_Squadre[nomeTeam][1].get(role) %}
+                                            <tr>
+                                                <td>{{ player[0] }}</td>
+                                                <td>{{ player[1] }}</td>
+                                                <td>{{ player[2] }}</td>
+                                                <td>{{ player[4] }}</td>
+                                                <td>{{ player[5] }}</td>
+                                                <td>{{ player[6] }}</td>
+                                                <td>
+                                                    <form action="fantaAsta" method="POST">
+                                                        <input type="hidden" name= "selected_idplayer" value="{{ player[0] }}">
+                                                        <input type="hidden" name="nomeFantaSquadra" value="{{ nomeTeam }}">     
+                                                        <input type="hidden" name="op" value="del">
+                                                        <input type="hidden" name= "prezzo" value="{{ player[6] }}">
+                                                        {% if role == 'P' %}
+                                                            <button type="submit" class="btn btn-warning" style="margin-left: 10%;">Elimina</button>
+                                                        {% elif role == 'D' %}
+                                                            <button type="submit" class="btn btn-success" style="margin-left: 10%;">Elimina</button>
+                                                        {% elif role == 'C' %}
+                                                            <button type="submit" class="btn btn-primary" style="margin-left: 10%;">Elimina</button>
+                                                        {% elif role == 'A' %}
+                                                            <button type="submit" class="btn btn-danger" style="margin-left: 10%;">Elimina</button>
+                                                        {% endif %}
+                                                    </form>
+                                                </td>
+                                            </tr>
+                                        {% endfor %}
+                                </tbody>
+                            </table>
+                            </br>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    </div>
+       
+        
     
 {% endblock %}

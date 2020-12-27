@@ -14,7 +14,7 @@
 
 
 {% block content %}
-<div>
+<div style="margin-top: 1.5cm;">
     <table class="table">
         <thead class="thead-dark">
           <tr>
@@ -34,7 +34,9 @@
                         </td>
                         <td>{{ element[2] }}</td>
                         <td>{{ element[1] }}</td>
-                        <td>{{ element[3] }}</td>
+                        <td>{{ element[3] }}
+                            <input type="hidden" name="fantaTeam" value="{{ element[3] }}">
+                        </td>
                         <td width="50 px">
                             <button type="submit">Cancella</button>
                         </td>
@@ -60,7 +62,7 @@
       <label for="Email" class="form-label">Email</label>
       <input type="text" width="75" class="form-control" name="Email">
       <input type="hidden" name= "op" value="add">
-      <button class="btn btn-primary" type="submit" style="margin-left: 50;">Submit</button>
+      <button class="btn btn-primary" type="submit" style="margin-left: 40%; margin-top:10px;">Aggiungi</button>
 
     </div>
 </form>
