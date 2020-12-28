@@ -13,6 +13,11 @@
 {% endblock %}
 
 
+{% block scriptblock%}
+
+{% endblock %}
+
+
 {% block content %}
 <div style="margin-top: 1.5cm;">
     <table class="table">
@@ -47,7 +52,7 @@
                             <input type="hidden" name= "name" value=" {{ element[2] }}">
                             <input type="hidden" name= "email" value=" {{ element[1] }}">
                             <input type="hidden" name= "op" value="update">
-                            <button type="submit">Modifica</button>
+                            <button id="modificaUtente" type="submit">Modifica</button>
                         </td>
                     </form>
                 </tr>
@@ -55,31 +60,27 @@
         </tbody>
       </table>
 </div>
-<form class="row g-3 needs-validation" novalidate action="/" method="POST" >
-    <div class="col-md-4" style="margin-left: 30%">
+<form class="row g-3 needs-validation" novalidate action="/" method="POST" id= "addUserForm" >
+    <div class="col-md-4" style="margin-left: 526px">
       <label for="username" class="form-label">Nome</label>
-      <input type="text" width="75" class="form-control" name="username" required>
+      <input type="text" width="75" class="form-control" name="username" id= "username" required>
       <label for="Email" class="form-label">Email</label>
-      <input type="text" width="75" class="form-control" name="Email">
+      <input type="text" width="75" class="form-control" name="Email" id="email">
       <input type="hidden" name= "op" value="add">
-      <button class="btn btn-primary" type="submit" style="margin-left: 40%; margin-top:10px;">Aggiungi</button>
-
+      <button class="btn btn-primary" id="AggiungiUtente" type="submit" style="margin-left: 40%; margin-top:10px;">Aggiungi</button>
     </div>
 </form>
+</br></br>
 
-<div style="margin-top: 500px;">    
-    {% if messages %}
-        {% for message in messages %}
-            <div class="toast-body" style="color: red;">
-                {{ message }}
-            </div>
-        {% endfor %}
-    {% endif %}
-</div>
+{% if messages != "" %}
+    <div style="position:  relative;">
+        <div id= "myAlert" class="alert alert-danger" style="width: 500px; position: absolute; left: 526px;" collapse>
+            <span id="linkClose" style="cursor: pointer; position: absolute; top: 50%; right: 0%; padding: 12px 16px; transform: translate(0%, -50%);" hover= "background: #bbb;">x</span>
+            <!--<a href="#" class="close" id="linkClose">&times;</a> -->
+            <strong> Errore </strong> <p>{{ messages }}</p>
+        </div>
+    </div>
+{% endif %}
 
-<div>
-    {% if message %}
-        <h2>{{ message }}</h2>
-    {% endif %}
-</div>
+
 {% endblock %}

@@ -20,6 +20,16 @@
             <h2 class="card-title" style="height: 1000 px;"> Nessuna squadra inserita al momento</h2>
             <p> Per aggiungere fanta squadre tornare nella home e assegnare una fantasquadra ad un utente</p>
         {% else %}
+        {% if messages != "" %}
+            </br></br>
+                <div style="position:  relative;">
+                    <div id= "myAlert" class="alert alert-danger" style="width: 400px; position: absolute; left: 800px; top: 85px;" collapse>
+                        <span id="linkClose" style="cursor: pointer; position: absolute; top: 50%; right: 0%; padding: 12px 16px; transform: translate(0%, -50%);" hover= "background: #bbb;">x</span>
+                        <!--<a href="#" class="close" id="linkClose">&times;</a> -->
+                        <strong> Errore </strong> <p>{{ messages }}</p>
+                    </div>
+            </div>
+        {% endif %}
             {% for nomeTeam in fanta_Squadre.keys() %}
                     <h2 class= "card-title" style="margin-left: 40%;"> {{ nomeTeam }}</h2>
                     </br>
@@ -166,7 +176,5 @@
             </div>
         {% endif %}
     </div>
-       
-        
-    
+      
 {% endblock %}

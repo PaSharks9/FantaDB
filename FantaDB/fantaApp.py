@@ -68,35 +68,37 @@ def home():
             return redirect('/')
         else:
             # Controllo il formato dell'email 
-            print("username :", request.form['username'])
-            if request.form['username'] != '': 
-                if '@' in request.form['Email'] and ('.com'  in request.form['Email'] or '.it'  in request.form['Email']):
-                    if request.form['Email'] not in emails and request.form['username'] not in usernames: 
+            # print("username :", request.form['username'])
+            if request.form['Email'] != "" and request.form['username'] != "":
+                print("email: ", request.form['Email'])
+                if '@' not in request.form['Email'] or ('.it' not in request.form['Email'] and '.com' not in request.form['Email']):
+                     return render_template('homescreen.html', data=results, user_image= full_filename, messages= "Formato email sbagliato, controllare che '@' o '.it' o '.com' siano presenti!")
 
-                        IDmister= CreateID(FantaAllenatore)
+                if request.form['Email'] not in emails and request.form['username'] not in usernames: 
 
-                        if IDmister != 'F':
-                            mister = FantaAllenatore(IDmister, request.form['Email'], request.form['username'])
-                            db_session.add(mister)
-                            db_session.commit()
-                            return redirect('/')
-                        else:
-                            # flash("Numero d'iscrizioni massimo raggiunto!")
-                            message= ["Numero d'iscrizioni massimo raggiunto!"]
-                            render_template('homescreen.html', data=results, user_image= full_filename, messages= message)
-                    else: 
-                        # flash("Username o Email già utilizzati!")
-                        message= ["Username o Email già utilizzati!"]
-                        return render_template('homescreen.html', data=results, user_image= full_filename, messages= message)
-                else:
-                    # flash("Formato email sbagliato, ricontrollare!")
-                    message= ["Formato email sbagliato, ricontrollare!"]
+                    IDmister= CreateID(FantaAllenatore)
+
+                    if IDmister != 'F':
+                        mister = FantaAllenatore(IDmister, request.form['Email'], request.form['username'])
+                        db_session.add(mister)
+                        db_session.commit()
+                        return redirect('/')
+                    else:
+                        message= "Numero d'iscrizioni massimo raggiunto!"
+                        render_template('homescreen.html', data=results, user_image= full_filename, messages= message)
+
+                elif request.form['Email'] in emails: 
+                    # flash("Username o Email già utilizzati!")
+                    message= "Email già utilizzata!"
                     return render_template('homescreen.html', data=results, user_image= full_filename, messages= message)
-                
-            flash("Inserire Username!")
-            return redirect('/')
+
+                else:
+                    message= "Username già utilizzato!"
+                    return render_template('homescreen.html', data=results, user_image= full_filename, messages= message)
+            else:
+                return render_template('homescreen.html', data= results, user_image= full_filename, messages= "Inserire Username e/o Email!")
     
-    return render_template('homescreen.html', data=results, user_image= full_filename)
+    return render_template('homescreen.html', data=results, user_image= full_filename, messages= "")
 
 
 @app.route('/updateFAll', methods=['POST', 'GET'])
@@ -120,10 +122,10 @@ def updateFAll():
 
             if int(iD) in idFantaAll:
                 # Se l'allenatore ha una fantasquadra non metto la possibilità d'inserirla e quindi posso solo vedere la squadra o cancellarla
-                return render_template('updateFAll.html', op=op, id=iD, nAllenatore= nameAllenatore, email= email, fantaT= 'y', dictTeam= dictTeam, )
+                return render_template('updateFAll.html', op=op, id=iD, nAllenatore= nameAllenatore, email= email, fantaT= 'y', dictTeam= dictTeam, messages= "" )
 
             # Se l'allenatore non ha una fantasquadra abilito la possibilità di aggiungerla 
-            return render_template('updateFAll.html',op=op, id=iD, nAllenatore= nameAllenatore, email= email, fantaT= 'n')
+            return render_template('updateFAll.html',op=op, id=iD, nAllenatore= nameAllenatore, email= email, fantaT= 'n', messages="")
 
         elif op == "addFTeam":
             # print("nTeam ricevuto: ", request.form['nTeam']) 
@@ -136,8 +138,11 @@ def updateFAll():
                 db_session.commit()
                 return redirect('/')
             else:
-                message= ["Nome Squadra gia presente!"]
-                return render_template('updateFAll.html', messages= message)
+                username= request.form['username']
+                email= request.form['email']
+                iD= request.form['iD']
+                message= "Nome Squadra gia presente!"
+                return render_template('updateFAll.html', messages= message, nAllenatore= username, email= email, fantaT= 'n', id= iD)
         
         elif op == "deleteFTeam":
             FantaSquadra.query.filter_by(TeamName= request.form['nFTeam']).delete() # Volendo eventuale controllo su nFTeam dato che viene direttamente dalla form
@@ -158,11 +163,8 @@ def updateFAll():
             # print("Utente modificato con successo")
             return redirect('/')
 
-
-    elif request.method == 'GET':
-        return render_template('homescreen.html', message=" Errore, pagina visitata in GET")
     
-    return render_template('homescreen.html', message="Errore, modifica cancellata")
+    return render_template('homescreen.html', messages="Errore, modifica cancellata")
 
 
 @app.route('/fantaAsta', methods=['POST', 'GET'])
@@ -194,7 +196,7 @@ def fanta_asta():
             selected_idPlayer= request.form['selected_idplayer']
             if selected_idPlayer == "Giocatori..." or prezzo == "Prezzo...":
                 fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
-                return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA)
+                return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA, messages="")
             
 
             giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
@@ -209,7 +211,7 @@ def fanta_asta():
             nAllenatore= request.form['selected_allenatore']
             if nAllenatore == "Scegli..." or prezzo == "Prezzo..." :
                 fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
-                return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA)
+                return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA, messages="")
 
             team= FantaSquadra.query.filter_by(TeamName= nome_FTeam).first()
             responseAll= calcola_crediti(prezzo, nome_FTeam, 'add', True)
@@ -230,14 +232,14 @@ def fanta_asta():
             db_session.add(team)
             db_session.commit()
         else: 
-            print("Crediti Insufficenti") # da fare come pop-up
-        
+            fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
+            return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA, messages="Crediti Insufficenti!")
     '''allenatoriFA= getAllenatori(True)  # allenatori_FA[nomeall]= squadraAll
     giocatoriFA= getDictGiocatori(True) # giocatoriFA[ruolo]= [player_id, nome, squadra, fantasquadra, valI, valA]
     fanta_Squadre= get_fantaSquadre_dict() #  dictTeam[teamName]= [NomeFantaAll, fantaTeam_players, int(crediti), allenatore]'''
 
     fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
-    return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA)
+    return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA, messages="")
 
 
 @app.route("/playerlist", methods=['GET'])
