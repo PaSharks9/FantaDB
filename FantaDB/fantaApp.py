@@ -413,15 +413,14 @@ def getFantaMisterDB():
     # fantaAllenatoriDB= str(self.id) + '|' + self.email + '|' + self.username
     fantaAllenatoriDB= FantaAllenatore.query.all()
 
-    # FAllenatoreSquadraJoin= FantaAllenatore.query.join(FantaSquadra).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
-
-    # Ottengo le fantasquadre(se presenti) relative ad ogni allenatore in modo da poterle mostrare nell'homescreen (si potrebbe fare anche con una selectaAll su FantaSquadre)
-    fantaSquadreJoin= FantaSquadra.query.join(FantaAllenatore).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
+    # Ottengo le fantasquadre(se presenti) relative ad ogni allenatore in modo da poterle mostrare nell'homescreen 
+    # fantaSquadreJoin= FantaSquadra.query.join(FantaAllenatore).filter(FantaAllenatore.id == FantaSquadra.IdFantaAllenatore)
+    fantaSquadreJoin= FantaSquadra.query.join(FantaAllenatore)
     for res in fantaSquadreJoin:
         element= str(res).split('|')
                    # idFantaAll    nomeFantaTeam, Crediti
         joinResults[element[1]]= [element[0], element[2], element[3]]
-
+        print(joinResults)
     # Spezzo la rappresentazione di FantaAllenatore per l'elaborazione
     for allenatore in fantaAllenatoriDB:
         elements= str(allenatore).split('|')
@@ -506,7 +505,7 @@ def getAllenatori(allenatoriFreeAgent):
         return allenatoriDictDB  # allenatoriDictDB[nomeall] = squadraAll       # la squadra dell'allenatore è la squadra reale NON la fantasquadra
 
 
-# Inizializzo i dati nel DB leggendoli e sistemandoli dal file .csv
+# Inizializzo i dati nel DB leggendoli e sistemandoli dal file .csv (giocatori, squadre, allenatori)
 def initFileData():
     # Leggo file xslx contenente i dati di giocatori e squadre
     df= pd.read_csv(r'C:\Users\lucap\OneDrive\Desktop\Codici\FantaDB\FantaDB\Quotazioni_Fantacalcio.csv', skiprows=1)
