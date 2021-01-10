@@ -145,6 +145,12 @@ def updateFAll():
                 return render_template('updateFAll.html', messages= message, nAllenatore= username, email= email, fantaT= 'n', id= iD)
         
         elif op == "deleteFTeam":
+            # Prima di cancellare la fantasquadra devo aggiornare la fantasquadra dei giocatori di quella fantasquadra
+            giocatori= Giocatore.query.filter_by(nomeFantasquadra= request.form['nFTeam']).all()
+            for player in giocatori: 
+                player.nomeFantasquadra= None
+                db_session.commit()
+
             FantaSquadra.query.filter_by(TeamName= request.form['nFTeam']).delete() # Volendo eventuale controllo su nFTeam dato che viene direttamente dalla form
             db_session.commit()
             return redirect('/')
@@ -192,7 +198,7 @@ def fanta_asta():
 
         elif op == "add":
 
-            prezzo= int(request.form['prezzo'])
+            prezzo= request.form['prezzo']
             selected_idPlayer= request.form['selected_idplayer']
             if selected_idPlayer == "Giocatori..." or prezzo == "Prezzo...":
                 fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
@@ -201,20 +207,21 @@ def fanta_asta():
 
             giocatore= Giocatore.query.filter_by(player_id= selected_idPlayer).first()
 
+            prezzo= int(prezzo)
             response= calcola_crediti(prezzo, nome_FTeam, op, False)
             giocatore.nomeFantasquadra= nome_FTeam
             giocatore.valAcquisto= prezzo
 
         elif op == "updtAll":
             print("dentro updtAll")
-            prezzo= int(request.form['prezzo'])
+            prezzo= request.form['prezzo']
             nAllenatore= request.form['selected_allenatore']
             if nAllenatore == "Scegli..." or prezzo == "Prezzo..." :
                 fanta_Squadre, giocatoriFA, allenatoriFA=  get_asta_view()
                 return render_template('fanta_asta.html', fanta_Squadre= fanta_Squadre, giocatoriFADict= giocatoriFA, user_image= full_filename, allenatoriFA= allenatoriFA, messages="")
 
             team= FantaSquadra.query.filter_by(TeamName= nome_FTeam).first()
-            responseAll= calcola_crediti(prezzo, nome_FTeam, 'add', True)
+            responseAll= calcola_crediti(int(prezzo), nome_FTeam, 'add', True)
             team.allenatore= nAllenatore
 
         elif op == "delAll":
